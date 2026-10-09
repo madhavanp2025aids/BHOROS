@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+  <title>BHOROS | Optimization Recommendation</title>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Nunito+Sans:wght@700&amp;family=Space+Mono:wght@600;700&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+  <style>
+    @layer base {
+      html, body {
+        width: 100vw;
+        margin: 0;
+        padding: 0;
+        background-color: #F8FAFC;
+      }
+      body {
+        overscroll-behavior: none;
+        -webkit-font-smoothing: antialiased;
+      }
+      .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+      .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+      main > :first-child { margin-top: 0 !important; }
+      main > :last-child { margin-bottom: 0 !important; }
+    }
+    ::-webkit-scrollbar { display: none; }
+    body { min-height: max(884px, 100dvh); }
+  </style>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+</head>
+<body class="bg-[#F8FAFC] text-slate-700 font-sans flex flex-col min-h-screen">
+  <!-- Header -->
+  <header class="fixed top-0 inset-x-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm pt-safe">
+    <div class="h-20 px-3 flex flex-col justify-center gap-1 max-w-4xl mx-auto">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2 min-w-0">
+          <a href="index.html#optimize" class="flex items-center gap-2">
+            <div class="h-8 w-8 rounded-lg bg-slate-900 flex items-center justify-center p-1 shadow-sm shrink-0">
+              <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+                <rect width="100" height="100" rx="20" fill="#0f172a"/>
+                <path d="M50 15 L78 35 L78 68 L50 88 L22 68 L22 35 Z" stroke="#38bdf8" stroke-width="5" fill="#1e293b" />
+                <path d="M50 25 L50 78" stroke="#2ecc71" stroke-width="4" stroke-dasharray="6 3"/>
+                <circle cx="50" cy="50" r="14" fill="#0284c7" stroke="#38bdf8" stroke-width="3"/>
+                <path d="M36 50 H64" stroke="#f39c12" stroke-width="3"/>
+                <circle cx="50" cy="50" r="5" fill="#ffffff"/>
+              </svg>
+            </div>
+            <div class="flex items-center gap-1.5 truncate">
+              <span class="text-sm font-bold text-[#0284C7] tracking-tight uppercase">BHOROS</span>
+              <span class="text-slate-300 font-semibold text-sm">|</span>
+              <h1 class="text-sm font-semibold text-slate-900 truncate capitalize">Optimize</h1>
+            </div>
+          </a>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center">
+            <span class="material-symbols-outlined text-slate-500 text-[18px]">person</span>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-1.5">
+          <span class="font-mono text-xs text-slate-500 tracking-wider uppercase">WELL:</span>
+          <span class="font-mono text-xs text-[#0369A1] tracking-wide font-bold">PERMIAN-NV-402B</span>
+        </div>
+        <div class="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+          <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+          <span class="font-alert text-[11px] font-bold text-emerald-700 uppercase">OK</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex flex-col relative w-full pt-20 pb-20 bg-[#F8FAFC] min-h-screen max-w-4xl mx-auto px-3">
+    <div class="flex flex-col gap-3.5 pb-8">
+      <div class="flex flex-col gap-1 mt-2">
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-alert font-bold bg-sky-100 text-sky-800 border border-sky-200 uppercase">
+            MODEL V3.8-OPT
+          </span>
+          <span class="text-slate-500 font-mono text-xs">CYCLE: 14-SOAK</span>
+        </div>
+        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Optimization Recommendation</h1>
+        <h2 class="text-sm text-slate-500 font-normal">Multi-Objective Physics &amp; Control Setpoints</h2>
+      </div>
+
+      <!-- Governor Active -->
+      <div class="flex flex-col p-3.5 bg-white border border-slate-200 rounded-xl shadow-sm gap-2.5">
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex items-start gap-2.5">
+            <div class="w-9 h-9 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0 mt-0.5">
+              <span class="material-symbols-outlined text-emerald-600 text-[22px]">shield</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-sm font-semibold text-slate-900">Automated Wellbore Governor Active</span>
+              <span class="text-xs text-slate-500 mt-0.5">Safety limits verified via transient multiphase solver</span>
+            </div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer shrink-0 mt-1">
+            <input checked class="sr-only peer" id="governorSwitch" type="checkbox"/>
+            <div class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all shadow-inner"></div>
+          </label>
+        </div>
+        <div class="flex items-center gap-1.5 self-start px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-700">
+          <span class="material-symbols-outlined text-[15px] text-[#0284C7]">model_training</span>
+          <span class="font-medium text-slate-500">Engine:</span>
+          <span class="font-semibold text-slate-900">Digital Twin Multiphase Flow Solver</span>
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 ml-0.5"></span>
+        </div>
+      </div>
+
+      <!-- Expected Gains -->
+      <div class="flex flex-col gap-2 p-3.5 bg-white border border-slate-200 rounded-xl shadow-sm">
+        <div class="flex items-center justify-between pb-1 border-b border-slate-200">
+          <span class="font-alert text-xs font-bold text-emerald-700 tracking-wider uppercase">PROJECTED RETURN EVALUATION</span>
+          <span class="font-mono text-xs font-semibold text-[#0369A1]">CONFIDENCE: 94.2%</span>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mt-1">
+          <div class="flex flex-col bg-slate-50 border border-slate-200 p-2.5 rounded-lg">
+            <span class="text-[11px] text-slate-500">Net Uplift</span>
+            <div class="flex items-baseline gap-0.5 mt-0.5">
+              <span class="font-mono text-base font-bold text-emerald-700">+$1,420</span>
+              <span class="text-[10px] text-slate-500">/day</span>
+            </div>
+            <span class="text-[10px] font-medium text-emerald-700 mt-1">+$42.6k/mo</span>
+          </div>
+          <div class="flex flex-col bg-slate-50 border border-slate-200 p-2.5 rounded-lg">
+            <span class="text-[11px] text-slate-500">Production</span>
+            <div class="flex items-baseline gap-0.5 mt-0.5">
+              <span class="font-mono text-base font-bold text-[#0369A1]">+18.6</span>
+              <span class="text-[10px] text-slate-500">BOPD</span>
+            </div>
+            <span class="text-[10px] text-slate-500 mt-1 truncate">Tot: 331 BOPD</span>
+          </div>
+          <div class="flex flex-col bg-slate-50 border border-slate-200 p-2.5 rounded-lg">
+            <span class="text-[11px] text-slate-500">Steam Ratio</span>
+            <div class="flex items-baseline gap-0.5 mt-0.5">
+              <span class="font-mono text-base font-bold text-slate-900">-0.32</span>
+              <span class="text-[10px] text-slate-500">m³/m³</span>
+            </div>
+            <span class="text-[10px] text-slate-500 mt-1">SOR: 2.14</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action CTAs -->
+      <div class="flex flex-col gap-2 pt-1">
+        <a href="index.html#optimize" class="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold py-3.5 px-4 rounded-xl transition-all shadow-sm">
+          <span class="material-symbols-outlined text-[20px]">send_time_extension</span>
+          <span>Open Full Interactive Optimizer</span>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-sm">
+    <div class="flex items-center overflow-x-auto no-scrollbar h-16 px-1.5 gap-1 max-w-4xl mx-auto">
+      <a class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg text-slate-500 hover:text-slate-800 transition-colors shrink-0" href="index.html#live-well">
+        <span class="material-symbols-outlined text-[20px]">vital_signs</span>
+        <span class="font-alert text-[10px] tracking-tight uppercase mt-0.5">Live Well</span>
+      </a>
+      <a class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg text-slate-500 hover:text-slate-800 transition-colors shrink-0" href="index.html#alerts">
+        <span class="material-symbols-outlined text-[20px]">warning</span>
+        <span class="font-alert text-[10px] tracking-tight uppercase mt-0.5">Alerts</span>
+      </a>
+      <a aria-current="page" class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg transition-colors shrink-0 text-[#0369A1] bg-sky-50 font-semibold" href="index.html#optimize">
+        <span class="material-symbols-outlined text-[20px]">tune</span>
+        <span class="font-alert text-[10px] tracking-tight uppercase mt-0.5">Optimize</span>
+      </a>
+      <a class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg text-slate-500 hover:text-slate-800 transition-colors shrink-0" href="index.html#css-cycle">
+        <span class="material-symbols-outlined text-[20px]">cyclone</span>
+        <span class="font-alert text-[10px] tracking-tight uppercase mt-0.5">CSS Cycle</span>
+      </a>
+      <a class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg text-slate-500 hover:text-slate-800 transition-colors shrink-0" href="index.html#dynamo">
+        <span class="material-symbols-outlined text-[20px]">speed</span>
+        <span class="font-alert text-[10px] tracking-tight uppercase mt-0.5">Dynamo</span>
+      </a>
+      <a class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg text-slate-500 hover:text-slate-800 transition-colors shrink-0" href="index.html#history">
+        <span class="material-symbols-outlined text-[20px]">show_chart</span>
+        <span class="font-alert text-[10px] tracking-tight uppercase mt-0.5">History</span>
+      </a>
+      <a class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg text-slate-500 hover:text-slate-800 transition-colors shrink-0" href="index.html#debug">
+        <span class="material-symbols-outlined text-[20px]">terminal</span>
+        <span class="font-alert text-[10px] tracking-tight uppercase mt-0.5">Debug</span>
+      </a>
+    </div>
+  </nav>
+</body>
+</html>

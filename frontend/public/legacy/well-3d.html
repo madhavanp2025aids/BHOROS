@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+  <title>BHOROS | Multi-Well 3D Subsurface Digital Twin & Storage Battery</title>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <!-- Three.js, OrbitControls and GSAP CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+  <script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#FFFFFF",
+            "background": "#F8FAFC",
+            "border-subtle": "#E2E8F0",
+            "text-main": "#0F172A",
+            "text-body": "#334155",
+            "text-muted": "#64748B",
+            "primary": "#0284c7",
+            "primary-dark": "#0369a1",
+            "primary-light": "#e0f2fe",
+            "accent-green": "#10b981",
+            "accent-amber": "#f59e0b",
+            "accent-cyan": "#06b6d4",
+            "accent-rose": "#f43f5e",
+            "accent-purple": "#a855f7"
+          },
+          fontFamily: {
+            "sans": ["IBM Plex Sans", "sans-serif"],
+            "mono": ["IBM Plex Mono", "monospace"],
+            "tech": ["Space Mono", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    @layer base {
+      html, body {
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #020617;
+        color: #f8fafc;
+      }
+    }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+    ::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.4); border-radius: 4px; }
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(56, 189, 248, 0.22);
+    }
+    .glass-panel-glow {
+      box-shadow: 0 0 30px rgba(2, 132, 199, 0.18), inset 0 0 15px rgba(56, 189, 248, 0.05);
+    }
+    .bathymetric-grid {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
+    }
+    /* Floating 3D Tooltip */
+    #tooltip-3d {
+      position: absolute;
+      display: none;
+      pointer-events: none;
+      z-index: 50;
+      transform: translate(-50%, -120%);
+      transition: opacity 0.15s ease;
+    }
+  </style>
+</head>
+<body class="flex flex-col h-screen w-screen select-none font-sans bg-slate-950 text-slate-100 bathymetric-grid">
+
+  <!-- Top Glass Bar -->
+  <header class="h-14 shrink-0 px-3 md:px-4 glass-panel border-b border-slate-800 flex items-center justify-between z-30 gap-2 whitespace-nowrap">
+    <!-- Left Brand -->
+    <div class="flex items-center gap-2 shrink-0">
+      <a href="index.html#live-well" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+        <div class="h-8 w-8 rounded-lg bg-slate-900 flex items-center justify-center p-1 border border-sky-500/40 shadow-md">
+          <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+            <rect width="100" height="100" rx="20" fill="#0f172a"/>
+            <path d="M50 15 L78 35 L78 68 L50 88 L22 68 L22 35 Z" stroke="#38bdf8" stroke-width="5" fill="#1e293b" />
+            <path d="M50 25 L50 78" stroke="#10b981" stroke-width="4" stroke-dasharray="6 3"/>
+            <circle cx="50" cy="50" r="14" fill="#0284c7" stroke="#38bdf8" stroke-width="3"/>
+            <path d="M36 50 H64" stroke="#f59e0b" stroke-width="3"/>
+            <circle cx="50" cy="50" r="5" fill="#ffffff"/>
+          </svg>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="font-sans font-bold text-sm text-sky-400 tracking-wider">BHOROS</span>
+          <span class="text-slate-600 text-xs">|</span>
+          <span class="font-bold text-xs text-white">Full 3D Twin & Storage Hub</span>
+          <span class="hidden sm:inline-block px-1.5 py-0.5 text-[9px] bg-sky-950 text-sky-400 border border-sky-800 rounded font-tech">v6.0</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Center Camera Quick Nav Buttons -->
+    <div class="hidden md:flex items-center gap-1 bg-slate-900/90 border border-slate-800 p-1 rounded-xl shrink-0 overflow-x-auto">
+      <button onclick="focusTarget('field')" class="px-2 py-1 rounded-lg text-xs font-mono font-bold text-white bg-sky-600 hover:bg-sky-500 transition-all flex items-center gap-1">
+        <span class="material-symbols-outlined text-[14px]">view_in_ar</span>
+        <span>Field</span>
+      </button>
+      <button onclick="focusTarget('reservoir')" class="px-2 py-1 rounded-lg text-xs font-mono font-bold text-amber-300 hover:bg-amber-950/60 border border-amber-800/60 transition-all flex items-center gap-1">
+        <span class="material-symbols-outlined text-[14px] text-amber-400">water</span>
+        <span>Deep Cavern</span>
+      </button>
+      <button onclick="focusTarget('storage')" class="px-2 py-1 rounded-lg text-xs font-mono font-bold text-emerald-300 hover:bg-emerald-950/60 border border-emerald-800/60 transition-all flex items-center gap-1">
+        <span class="material-symbols-outlined text-[14px] text-emerald-400">inventory_2</span>
+        <span>Storage Tanks</span>
+      </button>
+      <button onclick="focusTarget('manifold')" class="px-2 py-1 rounded-lg text-xs font-mono font-bold text-slate-300 hover:text-white hover:bg-slate-800 transition-all flex items-center gap-1">
+        <span class="material-symbols-outlined text-[14px] text-amber-400">hub</span>
+        <span>Header</span>
+      </button>
+      <button onclick="focusTarget('well1')" class="px-1.5 py-1 rounded-lg text-xs font-mono font-bold text-emerald-400 hover:bg-emerald-950/60 border border-emerald-900/60 transition-all">W1</button>
+      <button onclick="focusTarget('well2')" class="px-1.5 py-1 rounded-lg text-xs font-mono font-bold text-amber-400 hover:bg-amber-950/60 border border-amber-900/60 transition-all">W2</button>
+      <button onclick="focusTarget('well3')" class="px-1.5 py-1 rounded-lg text-xs font-mono font-bold text-cyan-400 hover:bg-cyan-950/60 border border-cyan-900/60 transition-all">W3</button>
+      <button onclick="focusTarget('well4')" class="px-1.5 py-1 rounded-lg text-xs font-mono font-bold text-rose-400 hover:bg-rose-950/60 border border-rose-900/60 transition-all">W4</button>
+      <button onclick="focusTarget('well5')" class="px-1.5 py-1 rounded-lg text-xs font-mono font-bold text-purple-400 hover:bg-purple-950/60 border border-purple-900/60 transition-all">W5</button>
+      <button onclick="focusTarget('well6')" class="px-1.5 py-1 rounded-lg text-xs font-mono font-bold text-blue-400 hover:bg-blue-950/60 border border-blue-900/60 transition-all">W6</button>
+    </div>
+
+    <!-- Right Controls -->
+    <div class="flex items-center gap-1.5 md:gap-2 shrink-0">
+      <button onclick="toggleFullTwinView()" id="zen-btn" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-sky-950 hover:bg-sky-900 text-sky-300 border border-sky-600/50 shadow-sm transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+        <span class="material-symbols-outlined text-[16px] text-sky-400">visibility</span>
+        <span id="zen-label">Full View</span>
+      </button>
+
+      <div class="hidden sm:flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-950/80 border border-emerald-700/60 text-emerald-300 text-[11px] font-mono whitespace-nowrap">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+        <span>6/6 ACTIVE</span>
+      </div>
+
+      <a href="index.html#live-well" class="px-2.5 py-1 rounded-lg text-xs font-sans font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all flex items-center gap-1 whitespace-nowrap">
+        <span class="material-symbols-outlined text-[15px]">arrow_back</span>
+        <span>SCADA</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main View Area (3D WebGL Canvas + Glass HUD Overlays) -->
+  <div class="relative flex-1 w-full h-full overflow-hidden">
+    <!-- WebGL Three.js Container -->
+    <div id="three-container" class="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"></div>
+
+    <!-- Floating 3D Raycast Tooltip -->
+    <div id="tooltip-3d" class="glass-panel p-2.5 rounded-xl border border-sky-400/50 shadow-2xl font-mono text-xs max-w-xs">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-1 mb-1.5">
+        <span id="tt-title" class="font-bold text-sky-300">WELL-01 (NV-402B)</span>
+        <span id="tt-status" class="px-1.5 py-0.2 text-[9px] bg-emerald-950 text-emerald-300 rounded border border-emerald-700">EXTRACTING</span>
+      </div>
+      <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
+        <div class="text-slate-400">Stroke: <span id="tt-spm" class="text-amber-300 font-bold">5.3 SPM</span></div>
+        <div class="text-slate-400">Flow: <span id="tt-flow" class="text-emerald-300 font-bold">312 BOPD</span></div>
+        <div class="text-slate-400">Pressure: <span id="tt-press" class="text-sky-300 font-bold">84.2 bar</span></div>
+        <div class="text-slate-400">Depth: <span id="tt-tvd" class="text-slate-200 font-bold">2,060 m</span></div>
+      </div>
+    </div>
+
+    <!-- Left Collapsible Drawer (Field Telemetry & Storage Inventory) -->
+    <div id="left-hud-wrapper" class="absolute top-3 left-3 z-20 flex items-start">
+      <!-- Main Left Panel -->
+      <div id="left-hud-panel" class="glass-panel rounded-xl p-3 glass-panel-glow flex flex-col gap-2 border border-sky-500/25 w-80 max-h-[calc(100vh-4.5rem)] overflow-y-auto shadow-2xl transition-all duration-300">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="font-tech text-xs font-bold text-sky-300 tracking-wider uppercase">INTEGRATED FACILITY</span>
+          </div>
+          <span class="font-tech text-[9px] text-emerald-400 bg-emerald-950 border border-emerald-800 px-1.5 py-0.2 rounded font-bold">6-WELL + STORAGE</span>
+        </div>
+
+        <!-- Above Ground Storage Battery HUD -->
+        <div class="bg-gradient-to-br from-emerald-950/60 to-slate-900/90 border border-emerald-500/30 rounded-lg p-2 flex flex-col gap-1.5">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-tech font-bold text-emerald-300 text-[10px] uppercase flex items-center gap-1">
+              <span class="material-symbols-outlined text-[13px] text-emerald-400">inventory_2</span>
+              <span>Surface Oil Storage Tanks</span>
+            </span>
+            <span id="tank-fill-pct" class="font-mono text-emerald-400 font-bold text-xs">74.8%</span>
+          </div>
+          <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700">
+            <div id="tank-bar" class="bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400 h-full transition-all duration-300" style="width: 74.8%"></div>
+          </div>
+          <div class="grid grid-cols-3 gap-1 font-mono text-[9px] text-center pt-0.5">
+            <div class="bg-slate-900/80 p-1 rounded border border-slate-800">
+              <span class="text-slate-400 block">Tank A</span>
+              <span id="tank-a-val" class="font-bold text-emerald-300">88.4%</span>
+            </div>
+            <div class="bg-slate-900/80 p-1 rounded border border-slate-800">
+              <span class="text-slate-400 block">Tank B</span>
+              <span id="tank-b-val" class="font-bold text-emerald-300">76.2%</span>
+            </div>
+            <div class="bg-slate-900/80 p-1 rounded border border-slate-800">
+              <span class="text-slate-400 block">Tank C</span>
+              <span id="tank-c-val" class="font-bold text-amber-300">59.8%</span>
+            </div>
+          </div>
+          <div class="flex justify-between items-center text-[9px] text-slate-300 font-mono">
+            <span>Accumulated Storage:</span>
+            <span id="hud-stored-bbl" class="text-amber-400 font-bold">18,720 / 25,000 BBL</span>
+          </div>
+        </div>
+
+        <!-- Total Production Metrics -->
+        <div class="grid grid-cols-2 gap-1.5 text-xs font-mono">
+          <div class="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+            <span class="text-[9px] text-slate-400 uppercase">TOTAL LIQUIDS</span>
+            <div class="text-emerald-400 font-bold text-sm mt-0.5" id="hud-total-flow">1,842.0 BOPD</div>
+            <div class="text-[9px] text-slate-400 mt-0.5 flex items-center justify-between">
+              <span>Avg Speed:</span>
+              <span id="hud-avg-vel" class="text-slate-200 font-bold">5.8 SPM</span>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+            <span class="text-[9px] text-slate-400 uppercase">GAS PROD</span>
+            <div class="text-cyan-400 font-bold text-sm mt-0.5" id="hud-total-gas">884.5 MSCFD</div>
+            <div class="text-[9px] text-slate-400 mt-0.5 flex items-center justify-between">
+              <span>GOR:</span>
+              <span class="text-slate-200 font-bold">480 scf/bbl</span>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+            <span class="text-[9px] text-slate-400 uppercase">DEEP RES P</span>
+            <div class="text-amber-400 font-bold text-xs mt-0.5" id="hud-res-press">184.5 bar</div>
+            <div class="text-[9px] text-slate-400 mt-0.5">Mother Cavern</div>
+          </div>
+
+          <div class="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+            <span class="text-[9px] text-slate-400 uppercase">MANIFOLD P</span>
+            <div class="text-sky-400 font-bold text-xs mt-0.5" id="hud-manifold-press">78.2 bar</div>
+            <div class="text-[9px] text-slate-400 mt-0.5">To Storage</div>
+          </div>
+        </div>
+
+        <!-- 6 Well Channels Status Grid -->
+        <div class="border-t border-slate-800 pt-1.5 flex flex-col gap-1 font-mono text-[10px]">
+          <span class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">6 Subsurface Pipes (Click Focus)</span>
+          
+          <div class="grid grid-cols-3 gap-1">
+            <div onclick="focusTarget('well1')" class="cursor-pointer bg-slate-900/80 hover:bg-slate-800 p-1 rounded border border-emerald-900/60 flex flex-col items-center justify-center transition-all">
+              <span class="text-emerald-300 font-bold text-[9px]">W1-Alpha</span>
+              <span class="text-[9px] text-amber-300 font-bold" id="micro-spm-1">5.3 SPM</span>
+            </div>
+            <div onclick="focusTarget('well2')" class="cursor-pointer bg-slate-900/80 hover:bg-slate-800 p-1 rounded border border-amber-900/60 flex flex-col items-center justify-center transition-all">
+              <span class="text-amber-300 font-bold text-[9px]">W2-Bravo</span>
+              <span class="text-[9px] text-amber-300 font-bold" id="micro-spm-2">7.2 SPM</span>
+            </div>
+            <div onclick="focusTarget('well3')" class="cursor-pointer bg-slate-900/80 hover:bg-slate-800 p-1 rounded border border-cyan-900/60 flex flex-col items-center justify-center transition-all">
+              <span class="text-cyan-300 font-bold text-[9px]">W3-Charlie</span>
+              <span class="text-[9px] text-amber-300 font-bold" id="micro-spm-3">4.0 SPM</span>
+            </div>
+            <div onclick="focusTarget('well4')" class="cursor-pointer bg-slate-900/80 hover:bg-slate-800 p-1 rounded border border-rose-900/60 flex flex-col items-center justify-center transition-all">
+              <span class="text-rose-300 font-bold text-[9px]">W4-Delta</span>
+              <span class="text-[9px] text-amber-300 font-bold" id="micro-spm-4">6.5 SPM</span>
+            </div>
+            <div onclick="focusTarget('well5')" class="cursor-pointer bg-slate-900/80 hover:bg-slate-800 p-1 rounded border border-purple-900/60 flex flex-col items-center justify-center transition-all">
+              <span class="text-purple-300 font-bold text-[9px]">W5-Echo</span>
+              <span class="text-[9px] text-amber-300 font-bold" id="micro-spm-5">5.8 SPM</span>
+            </div>
+            <div onclick="focusTarget('well6')" class="cursor-pointer bg-slate-900/80 hover:bg-slate-800 p-1 rounded border border-blue-900/60 flex flex-col items-center justify-center transition-all">
+              <span class="text-blue-300 font-bold text-[9px]">W6-Foxtrot</span>
+              <span class="text-[9px] text-amber-300 font-bold" id="micro-spm-6">6.0 SPM</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3D Volumetric Layer Controls -->
+        <div class="border-t border-slate-800 pt-1.5 flex flex-col gap-1">
+          <span class="font-tech text-[9px] font-bold text-slate-400 uppercase tracking-wider">3D Model Layers</span>
+          <div class="flex flex-wrap gap-1">
+            <button id="toggle-particles-btn" onclick="toggleLayer('particles')" class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-700/80 transition-all">
+              Fluid Streams
+            </button>
+            <button id="toggle-strata-btn" onclick="toggleLayer('strata')" class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-sky-950 text-sky-300 border border-sky-700/80 transition-all">
+              Rock Strata
+            </button>
+            <button id="toggle-casing-btn" onclick="toggleLayer('casing')" class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-slate-900 text-slate-300 border border-slate-700 transition-all">
+              Well Casings
+            </button>
+            <button id="toggle-reservoir-btn" onclick="toggleLayer('reservoir')" class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-950 text-amber-300 border border-amber-700/80 transition-all">
+              Deep Reservoir
+            </button>
+            <button id="toggle-storage-btn" onclick="toggleLayer('storage')" class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-teal-950 text-teal-300 border border-teal-700/80 transition-all">
+              Storage Tanks
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Left Toggle Tab Button -->
+      <button id="left-hud-toggle" onclick="toggleHudPanel('left')" title="Toggle Telemetry Panel" class="ml-1 mt-1 px-1.5 py-2.5 rounded-r-lg bg-slate-900/90 hover:bg-sky-900 text-sky-400 border border-l-0 border-sky-500/40 shadow-xl transition-all flex flex-col items-center justify-center gap-0.5 cursor-pointer">
+        <span id="left-hud-icon" class="material-symbols-outlined text-[15px]">chevron_left</span>
+        <span class="text-[8px] font-mono font-bold [writing-mode:vertical-lr] tracking-widest text-slate-300 uppercase">DATA</span>
+      </button>
+    </div>
+
+    <!-- Right Collapsible Drawer (6-Well Governors & Preset Automation) -->
+    <div id="right-hud-wrapper" class="absolute top-3 right-3 z-20 flex items-start">
+      <!-- Right Toggle Tab Button -->
+      <button id="right-hud-toggle" onclick="toggleHudPanel('right')" title="Toggle Controls Panel" class="mr-1 mt-1 px-1.5 py-2.5 rounded-l-lg bg-slate-900/90 hover:bg-sky-900 text-sky-400 border border-r-0 border-sky-500/40 shadow-xl transition-all flex flex-col items-center justify-center gap-0.5 cursor-pointer">
+        <span id="right-hud-icon" class="material-symbols-outlined text-[15px]">chevron_right</span>
+        <span class="text-[8px] font-mono font-bold [writing-mode:vertical-lr] tracking-widest text-slate-300 uppercase">CONTROL</span>
+      </button>
+
+      <!-- Main Right Panel -->
+      <div id="right-hud-panel" class="glass-panel rounded-xl p-3 border border-slate-800 flex flex-col gap-2 w-72 max-h-[calc(100vh-4.5rem)] overflow-y-auto shadow-2xl transition-all duration-300">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+          <div class="flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-sky-400 text-[16px]">tune</span>
+            <span class="font-tech text-xs font-bold text-sky-400 uppercase tracking-wider">6 Pipe Governors</span>
+          </div>
+          <button onclick="syncAllPipes(6.0)" class="text-[9px] font-mono text-sky-300 hover:text-white bg-sky-950 hover:bg-sky-900 border border-sky-800 px-1.5 py-0.2 rounded transition-all">
+            Sync 6.0
+          </button>
+        </div>
+
+        <!-- Pipe 1 -->
+        <div class="bg-slate-900/80 p-1.5 rounded-lg border border-emerald-900/50 flex flex-col gap-0.5 font-mono text-xs">
+          <div class="flex justify-between items-center text-[10px]">
+            <span class="font-bold text-emerald-300">Pipe 1 (Alpha)</span>
+            <span id="slider-spm-1-val" class="font-bold text-amber-400">5.3 SPM</span>
+          </div>
+          <input type="range" id="spm-pipe-1" min="1.0" max="12.0" step="0.1" value="5.3" class="w-full accent-emerald-400 bg-slate-800 rounded cursor-pointer h-1" oninput="adjustPipeSPM(1, this.value)">
+        </div>
+
+        <!-- Pipe 2 -->
+        <div class="bg-slate-900/80 p-1.5 rounded-lg border border-amber-900/50 flex flex-col gap-0.5 font-mono text-xs">
+          <div class="flex justify-between items-center text-[10px]">
+            <span class="font-bold text-amber-300">Pipe 2 (Bravo)</span>
+            <span id="slider-spm-2-val" class="font-bold text-amber-400">7.2 SPM</span>
+          </div>
+          <input type="range" id="spm-pipe-2" min="1.0" max="12.0" step="0.1" value="7.2" class="w-full accent-amber-400 bg-slate-800 rounded cursor-pointer h-1" oninput="adjustPipeSPM(2, this.value)">
+        </div>
+
+        <!-- Pipe 3 -->
+        <div class="bg-slate-900/80 p-1.5 rounded-lg border border-cyan-900/50 flex flex-col gap-0.5 font-mono text-xs">
+          <div class="flex justify-between items-center text-[10px]">
+            <span class="font-bold text-cyan-300">Pipe 3 (Charlie)</span>
+            <span id="slider-spm-3-val" class="font-bold text-amber-400">4.0 SPM</span>
+          </div>
+          <input type="range" id="spm-pipe-3" min="1.0" max="12.0" step="0.1" value="4.0" class="w-full accent-cyan-400 bg-slate-800 rounded cursor-pointer h-1" oninput="adjustPipeSPM(3, this.value)">
+        </div>
+
+        <!-- Pipe 4 -->
+        <div class="bg-slate-900/80 p-1.5 rounded-lg border border-rose-900/50 flex flex-col gap-0.5 font-mono text-xs">
+          <div class="flex justify-between items-center text-[10px]">
+            <span class="font-bold text-rose-300">Pipe 4 (Delta)</span>
+            <span id="slider-spm-4-val" class="font-bold text-amber-400">6.5 SPM</span>
+          </div>
+          <input type="range" id="spm-pipe-4" min="1.0" max="12.0" step="0.1" value="6.5" class="w-full accent-rose-400 bg-slate-800 rounded cursor-pointer h-1" oninput="adjustPipeSPM(4, this.value)">
+        </div>
+
+        <!-- Pipe 5 -->
+        <div class="bg-slate-900/80 p-1.5 rounded-lg border border-purple-900/50 flex flex-col gap-0.5 font-mono text-xs">
+          <div class="flex justify-between items-center text-[10px]">
+            <span class="font-bold text-purple-300">Pipe 5 (Echo)</span>
+            <span id="slider-spm-5-val" class="font-bold text-amber-400">5.8 SPM</span>
+          </div>
+          <input type="range" id="spm-pipe-5" min="1.0" max="12.0" step="0.1" value="5.8" class="w-full accent-purple-400 bg-slate-800 rounded cursor-pointer h-1" oninput="adjustPipeSPM(5, this.value)">
+        </div>
+
+        <!-- Pipe 6 -->
+        <div class="bg-slate-900/80 p-1.5 rounded-lg border border-blue-900/50 flex flex-col gap-0.5 font-mono text-xs">
+          <div class="flex justify-between items-center text-[10px]">
+            <span class="font-bold text-blue-300">Pipe 6 (Foxtrot)</span>
+            <span id="slider-spm-6-val" class="font-bold text-amber-400">6.0 SPM</span>
+          </div>
+          <input type="range" id="spm-pipe-6" min="1.0" max="12.0" step="0.1" value="6.0" class="w-full accent-blue-400 bg-slate-800 rounded cursor-pointer h-1" oninput="adjustPipeSPM(6, this.value)">
+        </div>
+
+        <!-- Presets -->
+        <div class="grid grid-cols-3 gap-1 pt-0.5">
+          <button onclick="applyPreset('surge')" class="px-1.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[9px] font-mono font-bold text-amber-300 border border-slate-700 transition-all text-center">
+            ⚡ Surge
+          </button>
+          <button onclick="applyPreset('balanced')" class="px-1.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[9px] font-mono font-bold text-emerald-300 border border-slate-700 transition-all text-center">
+            ⚖️ Balanced
+          </button>
+          <button onclick="applyPreset('eco')" class="px-1.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[9px] font-mono font-bold text-sky-300 border border-slate-700 transition-all text-center">
+            🌱 Eco
+          </button>
+        </div>
+
+        <!-- Particle Size Control -->
+        <div class="border-t border-slate-800 pt-1 flex flex-col gap-0.5 font-mono text-xs">
+          <div class="flex justify-between text-[9px] text-slate-300">
+            <span>Particle Glow Size:</span>
+            <span id="slider-size-val" class="font-bold text-emerald-400">5.4 px</span>
+          </div>
+          <input type="range" id="particle-size-slider" min="2.0" max="12.0" step="0.5" value="5.4" class="w-full accent-emerald-400 bg-slate-800 rounded cursor-pointer h-1" oninput="adjustParticleSize(this.value)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Three.js 3D Multi-Well & Storage Subsurface Engine -->
+  <script>
+    let scene, camera, renderer, controls, raycaster, mouse;
+    let strataGroup, casingsGroup, manifoldGroup, fracGroup, particlesGroup, reservoirGroup, storageGroup;
+    let interactiveObjects = [];
+
+    // Panel states
+    let leftHudOpen = true;
+    let rightHudOpen = true;
+
+    // Live Tank Storage Variables
+    let totalStoredBarrels = 18720;
+    const maxStorageCapacity = 25000;
+
+    function toggleHudPanel(side) {
+      if (side === 'left') {
+        leftHudOpen = !leftHudOpen;
+        const panel = document.getElementById('left-hud-panel');
+        const icon = document.getElementById('left-hud-icon');
+        if (leftHudOpen) {
+          panel.classList.remove('hidden');
+          icon.textContent = 'chevron_left';
+        } else {
+          panel.classList.add('hidden');
+          icon.textContent = 'chevron_right';
+        }
+      } else if (side === 'right') {
+        rightHudOpen = !rightHudOpen;
+        const panel = document.getElementById('right-hud-panel');
+        const icon = document.getElementById('right-hud-icon');
+        if (rightHudOpen) {
+          panel.classList.remove('hidden');
+          icon.textContent = 'chevron_right';
+        } else {
+          panel.classList.add('hidden');
+          icon.textContent = 'chevron_left';
+        }
+      }
+    }
+
+    function toggleFullTwinView() {
+      const anyOpen = leftHudOpen || rightHudOpen;
+      if (anyOpen) {
+        if (leftHudOpen) toggleHudPanel('left');
+        if (rightHudOpen) toggleHudPanel('right');
+        document.getElementById('zen-label').textContent = 'Show Panels';
+        document.getElementById('zen-btn').classList.add('bg-amber-950', 'text-amber-300', 'border-amber-600');
+      } else {
+        if (!leftHudOpen) toggleHudPanel('left');
+        if (!rightHudOpen) toggleHudPanel('right');
+        document.getElementById('zen-label').textContent = 'Full View';
+        document.getElementById('zen-btn').classList.remove('bg-amber-950', 'text-amber-300', 'border-amber-600');
+      }
+    }
+
+    // Comprehensive 6-Well & Multi-Pipe Infrastructure Definitions
+    const wellConfigs = [
+      {
+        id: 1,
+        name: "Well-01 (Permian-Alpha-402)",
+        colorHex: 0x10b981, // Emerald Green
+        colorCss: "#10b981",
+        spm: 5.3,
+        nominalBOPD: 58.85,
+        surfacePos: new THREE.Vector3(-30, 5, -15),
+        kickoff: new THREE.Vector3(-10, -75, 10),
+        landing: new THREE.Vector3(45, -105, 45),
+        lateralToe: new THREE.Vector3(140, -112, 75),
+        deepFeeder: new THREE.Vector3(30, -135, 10), // Originates in deep reservoir cavern
+        particleCount: 2200,
+        pumpBeam: null,
+        rodMesh: null,
+        phase: 0.0
+      },
+      {
+        id: 2,
+        name: "Well-02 (Permian-Bravo-403)",
+        colorHex: 0xf59e0b, // Amber Gold
+        colorCss: "#f59e0b",
+        spm: 7.2,
+        nominalBOPD: 58.85,
+        surfacePos: new THREE.Vector3(-30, 5, 15),
+        kickoff: new THREE.Vector3(-5, -82, 35),
+        landing: new THREE.Vector3(50, -118, 90),
+        lateralToe: new THREE.Vector3(150, -122, 160),
+        deepFeeder: new THREE.Vector3(15, -136, 25),
+        particleCount: 2200,
+        pumpBeam: null,
+        rodMesh: null,
+        phase: 1.1
+      },
+      {
+        id: 3,
+        name: "Well-03 (Permian-Charlie-404)",
+        colorHex: 0x06b6d4, // Cyan Gas-Rich
+        colorCss: "#06b6d4",
+        spm: 4.0,
+        nominalBOPD: 58.85,
+        surfacePos: new THREE.Vector3(-50, 5, -30),
+        kickoff: new THREE.Vector3(-20, -70, -35),
+        landing: new THREE.Vector3(35, -95, -50),
+        lateralToe: new THREE.Vector3(165, -98, -60),
+        deepFeeder: new THREE.Vector3(-5, -134, -20),
+        particleCount: 2000,
+        pumpBeam: null,
+        rodMesh: null,
+        phase: 2.2
+      },
+      {
+        id: 4,
+        name: "Well-04 (Permian-Delta-405)",
+        colorHex: 0xf43f5e, // Rose High-Pressure
+        colorCss: "#f43f5e",
+        spm: 6.5,
+        nominalBOPD: 58.85,
+        surfacePos: new THREE.Vector3(-50, 5, 30),
+        kickoff: new THREE.Vector3(-15, -78, 45),
+        landing: new THREE.Vector3(30, -110, 75),
+        lateralToe: new THREE.Vector3(120, -114, 120),
+        deepFeeder: new THREE.Vector3(-10, -137, 15),
+        particleCount: 2000,
+        pumpBeam: null,
+        rodMesh: null,
+        phase: 3.3
+      },
+      {
+        id: 5,
+        name: "Well-05 (Permian-Echo-406)",
+        colorHex: 0xa855f7, // Purple Deep Branch
+        colorCss: "#a855f7",
+        spm: 5.8,
+        nominalBOPD: 55.20,
+        surfacePos: new THREE.Vector3(-70, 5, -10),
+        kickoff: new THREE.Vector3(-35, -85, -10),
+        landing: new THREE.Vector3(20, -125, -20),
+        lateralToe: new THREE.Vector3(135, -130, -15),
+        deepFeeder: new THREE.Vector3(-25, -136, -5),
+        particleCount: 1900,
+        pumpBeam: null,
+        rodMesh: null,
+        phase: 4.4
+      },
+      {
+        id: 6,
+        name: "Well-06 (Permian-Foxtrot-407)",
+        colorHex: 0x38bdf8, // Sky Blue Subsurface
+        colorCss: "#38bdf8",
+        spm: 6.0,
+        nominalBOPD: 56.40,
+        surfacePos: new THREE.Vector3(-70, 5, 10),
+        kickoff: new THREE.Vector3(-30, -80, 20),
+        landing: new THREE.Vector3(25, -120, 35),
+        lateralToe: new THREE.Vector3(145, -125, 40),
+        deepFeeder: new THREE.Vector3(-20, -135, 10),
+        particleCount: 1900,
+        pumpBeam: null,
+        rodMesh: null,
+        phase: 5.5
+      }
+    ];
+
+    // Particle Systems
+    let wellParticleSystems = [];
+    let reservoirParticleSystem, resPositions;
+    let storageInflowParticles, storagePositions, storagePhases;
+    let manifoldParticleSystem, manifoldPositions, manifoldPhases;
+    let fracParticles, fracPositions;
+
+    // Layer Visibilities
+    let showParticles = true;
+    let showStrata = true;
+    let showCasing = true;
+    let showReservoir = true;
+    let showStorage = true;
+
+    // Storage Battery Tank Meshes
+    let tankFluidMeshes = [];
+
+    function init3DScene() {
+      const container = document.getElementById('three-container');
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      // 1. Three.js Scene Setup
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x020617);
+      scene.fog = new THREE.FogExp2(0x020617, 0.0022);
+
+      // 2. Camera Setup
+      camera = new THREE.PerspectiveCamera(45, width / height, 1, 3200);
+      camera.position.set(220, 130, 260);
+
+      // 3. WebGL Renderer
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      container.appendChild(renderer.domElement);
+
+      // 4. Orbit Controls
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.maxPolarAngle = Math.PI / 2 + 0.22; // Allow deep subsurface views
+      controls.target.set(30, -50, 30);
+
+      // 5. Dynamic Multi-Point Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+      scene.add(ambientLight);
+
+      const dirLight = new THREE.DirectionalLight(0x38bdf8, 1.4);
+      dirLight.position.set(150, 220, 120);
+      scene.add(dirLight);
+
+      // Subsurface Deep Reservoir Pool Glow (Amber/Gold)
+      const resLight = new THREE.PointLight(0xf59e0b, 3.2, 350);
+      resLight.position.set(0, -135, 0);
+      scene.add(resLight);
+
+      // Surface Storage Tank Battery Glow (Emerald/Cyan)
+      const tankLight = new THREE.PointLight(0x10b981, 2.5, 180);
+      tankLight.position.set(-110, 30, 0);
+      scene.add(tankLight);
+
+      // Raycaster & Mouse Vector
+      raycaster = new THREE.Raycaster();
+      mouse = new THREE.Vector2();
+
+      // 6. Build All Subsystems
+      buildBathymetricStrata();
+      buildDeepUndergroundReservoir();
+      buildMultiWellNetwork();
+      buildAboveGroundStorageBattery();
+      buildSurfaceGatheringPiping();
+      buildDynamicMultiStreamParticles();
+
+      // 7. Event Listeners
+      window.addEventListener('resize', onWindowResize);
+      container.addEventListener('mousemove', onMouseMove);
+    }
+
+    /* -------------------------------------------------------------
+       1. Bathymetric Geological Strata Relief Layers
+    ------------------------------------------------------------- */
+    function buildBathymetricStrata() {
+      strataGroup = new THREE.Group();
+
+      const strataDefs = [
+        { y: 0, color: 0x78350f, opacity: 0.05, name: "Surface Topography" },
+        { y: -38, color: 0x065f46, opacity: 0.07, name: "Caprock Shale" },
+        { y: -78, color: 0x0369a1, opacity: 0.09, name: "Wolfcamp Formation" },
+        { y: -115, color: 0x15803d, opacity: 0.12, name: "Payzone Sandstone" }
+      ];
+
+      strataDefs.forEach((def, idx) => {
+        const geom = new THREE.PlaneGeometry(520, 420, 36, 36);
+        const pos = geom.attributes.position;
+        for (let i = 0; i < pos.count; i++) {
+          const vx = pos.getX(i);
+          const vy = pos.getY(i);
+          const zElev = Math.sin(vx * 0.025 + idx * 1.4) * 6.0 + Math.cos(vy * 0.03) * 4.5;
+          pos.setZ(i, zElev);
+        }
+        geom.computeVertexNormals();
+
+        const mat = new THREE.MeshStandardMaterial({
+          color: def.color,
+          transparent: true,
+          opacity: def.opacity,
+          roughness: 0.85,
+          side: THREE.DoubleSide
+        });
+        const mesh = new THREE.Mesh(geom, mat);
+        mesh.rotation.x = -Math.PI / 2;
+        mesh.position.y = def.y;
+        strataGroup.add(mesh);
+
+        const wireMat = new THREE.MeshBasicMaterial({
+          color: def.color,
+          wireframe: true,
+          transparent: true,
+          opacity: 0.15
+        });
+        const wireMesh = new THREE.Mesh(geom, wireMat);
+        wireMesh.rotation.x = -Math.PI / 2;
+        wireMesh.position.y = def.y + 0.1;
+        strataGroup.add(wireMesh);
+      });
+
+      // Depth Reference Grid Floor
+      const gridHelper = new THREE.GridHelper(520, 52, 0x0284c7, 0x1e293b);
+      gridHelper.position.y = -148;
+      strataGroup.add(gridHelper);
+
+      scene.add(strataGroup);
+    }
+
+    /* -------------------------------------------------------------
+       2. DEEP UNDERGROUND MOTHER RESERVOIR POOL & CAVERN
+    ------------------------------------------------------------- */
+    function buildDeepUndergroundReservoir() {
+      reservoirGroup = new THREE.Group();
+
+      // Giant Organic Cavern Base Floor (Deepest Payzone Chamber)
+      const cavernGeom = new THREE.CylinderGeometry(85, 110, 22, 32, 4, false);
+      const cavernMat = new THREE.MeshStandardMaterial({
+        color: 0x1c1917,
+        roughness: 0.9,
+        metalness: 0.3,
+        transparent: true,
+        opacity: 0.65,
+        side: THREE.BackSide
+      });
+      const cavernMesh = new THREE.Mesh(cavernGeom, cavernMat);
+      cavernMesh.position.set(10, -138, 10);
+      reservoirGroup.add(cavernMesh);
+
+      // Pulsating Bioluminescent Crude Oil Pool Disc
+      const poolGeom = new THREE.CircleGeometry(82, 36);
+      const poolMat = new THREE.MeshStandardMaterial({
+        color: 0xf59e0b,
+        emissive: 0xd97706,
+        emissiveIntensity: 0.5,
+        roughness: 0.15,
+        metalness: 0.8,
+        transparent: true,
+        opacity: 0.65,
+        side: THREE.DoubleSide
+      });
+      const poolMesh = new THREE.Mesh(poolGeom, poolMat);
+      poolMesh.rotation.x = -Math.PI / 2;
+      poolMesh.position.set(10, -135, 10);
+      poolMesh.userData = { isReservoir: true, name: "Deep Payzone Oil Cavern (-2,480m TVD)" };
+      interactiveObjects.push(poolMesh);
+      reservoirGroup.add(poolMesh);
+
+      // Glowing reservoir boundary wireframe cage
+      const cageMat = new THREE.MeshBasicMaterial({
+        color: 0xfbbf24,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.25
+      });
+      const cageMesh = new THREE.Mesh(cavernGeom, cageMat);
+      cageMesh.position.set(10, -138, 10);
+      reservoirGroup.add(cageMesh);
+
+      // Deep Mother Reservoir Vertical Feeder Conduit
+      const coreWellGeom = new THREE.CylinderGeometry(4.2, 5.0, 35, 16);
+      const coreWellMat = new THREE.MeshStandardMaterial({
+        color: 0xf59e0b,
+        transparent: true,
+        opacity: 0.35,
+        roughness: 0.2,
+        metalness: 0.9
+      });
+      const coreWellMesh = new THREE.Mesh(coreWellGeom, coreWellMat);
+      coreWellMesh.position.set(10, -125, 10);
+      reservoirGroup.add(coreWellMesh);
+
+      scene.add(reservoirGroup);
+    }
+
+    /* -------------------------------------------------------------
+       3. 6-WELL SUBTERRANEAN DIRECTIONAL PIPE NETWORK
+    ------------------------------------------------------------- */
+    function buildMultiWellNetwork() {
+      casingsGroup = new THREE.Group();
+
+      wellConfigs.forEach((well) => {
+        // Construct Complete Continuous Trajectory:
+        // Deep Feeder in Reservoir Pool -> Lateral Toe -> Landing -> Kickoff -> Surface Wellhead
+        const points = [
+          well.deepFeeder, // Deep intake originating from underground reservoir pool
+          well.lateralToe,
+          new THREE.Vector3(
+            (well.landing.x + well.lateralToe.x) * 0.5,
+            (well.landing.y + well.lateralToe.y) * 0.5,
+            (well.landing.z + well.lateralToe.z) * 0.5
+          ),
+          well.landing,
+          well.kickoff,
+          new THREE.Vector3(well.surfacePos.x, -35, well.surfacePos.z),
+          new THREE.Vector3(well.surfacePos.x, well.surfacePos.y, well.surfacePos.z)
+        ];
+        const curve = new THREE.CatmullRomCurve3(points);
+        well.curve = curve;
+
+        // Outer Translucent Heavy Casing
+        const casingGeom = new THREE.TubeGeometry(curve, 100, 2.6, 12, false);
+        const casingMat = new THREE.MeshStandardMaterial({
+          color: well.colorHex,
+          transparent: true,
+          opacity: 0.24,
+          roughness: 0.15,
+          metalness: 0.85
+        });
+        const casingMesh = new THREE.Mesh(casingGeom, casingMat);
+        casingMesh.userData = { wellId: well.id, isWell: true };
+        interactiveObjects.push(casingMesh);
+        casingsGroup.add(casingMesh);
+
+        // Wireframe Shell
+        const wireMat = new THREE.MeshBasicMaterial({
+          color: well.colorHex,
+          wireframe: true,
+          transparent: true,
+          opacity: 0.18
+        });
+        const wireMesh = new THREE.Mesh(casingGeom, wireMat);
+        casingsGroup.add(wireMesh);
+
+        // Inner Production Tubing String
+        const tubingGeom = new THREE.TubeGeometry(curve, 100, 1.3, 10, false);
+        const tubingMat = new THREE.MeshStandardMaterial({
+          color: 0xffffff,
+          transparent: true,
+          opacity: 0.35,
+          roughness: 0.2,
+          metalness: 0.8
+        });
+        const tubingMesh = new THREE.Mesh(tubingGeom, tubingMat);
+        casingsGroup.add(tubingMesh);
+
+        // Sucker Rod String in Vertical Section
+        const rodGeom = new THREE.CylinderGeometry(0.3, 0.3, 44, 8);
+        const rodMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.2 });
+        const rod = new THREE.Mesh(rodGeom, rodMat);
+        rod.position.set(well.surfacePos.x, -20, well.surfacePos.z);
+        well.rodMesh = rod;
+        casingsGroup.add(rod);
+
+        // Subsurface Perforation Discs along Reservoir Intake Zone
+        for (let p = 0; p < 8; p++) {
+          const t = 0.05 + (p / 8) * 0.35;
+          const pt = curve.getPoint(t);
+          const ringGeom = new THREE.RingGeometry(1.5, 3.2, 12);
+          const ringMat = new THREE.MeshBasicMaterial({
+            color: well.colorHex,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.75
+          });
+          const ring = new THREE.Mesh(ringGeom, ringMat);
+          ring.position.copy(pt);
+          ring.rotation.x = Math.PI / 2;
+          casingsGroup.add(ring);
+        }
+
+        // Surface Pumpjack Unit on Pad
+        buildSurfaceWellheadUnit(well);
+      });
+
+      scene.add(casingsGroup);
+    }
+
+    // Build Individual Surface Pumpjack Unit
+    function buildSurfaceWellheadUnit(well) {
+      const unitGroup = new THREE.Group();
+      unitGroup.position.set(well.surfacePos.x, well.surfacePos.y - 5, well.surfacePos.z);
+
+      // Base Structure
+      const postGeom = new THREE.CylinderGeometry(0.5, 1.8, 10, 4);
+      const postMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8 });
+      const post = new THREE.Mesh(postGeom, postMat);
+      post.position.set(-4, 5, 0);
+      unitGroup.add(post);
+
+      // Walking Beam
+      const beamGeom = new THREE.BoxGeometry(12, 0.9, 1.0);
+      const beamMat = new THREE.MeshStandardMaterial({ color: well.colorHex, metalness: 0.6, roughness: 0.4 });
+      const beam = new THREE.Mesh(beamGeom, beamMat);
+      beam.position.set(-2, 10, 0);
+      unitGroup.add(beam);
+      well.pumpBeam = beam;
+
+      // Horsehead Arc
+      const horseGeom = new THREE.BoxGeometry(2.0, 3.5, 1.0);
+      const horse = new THREE.Mesh(horseGeom, beamMat);
+      horse.position.set(4, -0.8, 0);
+      beam.add(horse);
+
+      // Christmas Tree & Flow Valve
+      const valveGeom = new THREE.CylinderGeometry(0.8, 0.8, 3.5, 8);
+      const valveMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.9, roughness: 0.2 });
+      const valve = new THREE.Mesh(valveGeom, valveMat);
+      valve.position.set(0, 3, 0);
+      unitGroup.add(valve);
+
+      casingsGroup.add(unitGroup);
+    }
+
+    /* -------------------------------------------------------------
+       4. ABOVE-GROUND OIL STORAGE TANK BATTERY (CONTAINERS)
+    ------------------------------------------------------------- */
+    function buildAboveGroundStorageBattery() {
+      storageGroup = new THREE.Group();
+
+      const tankPositions = [
+        { id: 'A', name: 'Crude Storage Tank Alpha (10,000 BBL)', pos: new THREE.Vector3(-110, 0, -22), color: 0x10b981 },
+        { id: 'B', name: 'Crude Storage Tank Bravo (10,000 BBL)', pos: new THREE.Vector3(-110, 0, 0), color: 0x06b6d4 },
+        { id: 'C', name: 'Buffer / Surge Tank Charlie (5,000 BBL)', pos: new THREE.Vector3(-110, 0, 22), color: 0xf59e0b }
+      ];
+
+      // Concrete Containment Bund / Dike Pad
+      const padGeom = new THREE.BoxGeometry(32, 2.0, 75);
+      const padMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.9, metalness: 0.2 });
+      const padMesh = new THREE.Mesh(padGeom, padMat);
+      padMesh.position.set(-110, 0.5, 0);
+      storageGroup.add(padMesh);
+
+      // Bund Containment Wall
+      const wallGeom = new THREE.BoxGeometry(34, 3.0, 77);
+      const wallWire = new THREE.MeshBasicMaterial({ color: 0x0284c7, wireframe: true, opacity: 0.25, transparent: true });
+      const wallMesh = new THREE.Mesh(wallGeom, wallWire);
+      wallMesh.position.set(-110, 1.5, 0);
+      storageGroup.add(wallMesh);
+
+      tankPositions.forEach((tank) => {
+        const tankContainer = new THREE.Group();
+        tankContainer.position.copy(tank.pos);
+
+        // Outer Industrial Translucent Shell
+        const shellGeom = new THREE.CylinderGeometry(8.5, 8.5, 18, 24);
+        const shellMat = new THREE.MeshStandardMaterial({
+          color: 0x334155,
+          transparent: true,
+          opacity: 0.45,
+          roughness: 0.2,
+          metalness: 0.85
+        });
+        const shellMesh = new THREE.Mesh(shellGeom, shellMat);
+        shellMesh.position.y = 10;
+        shellMesh.userData = { isTank: true, name: tank.name };
+        interactiveObjects.push(shellMesh);
+        tankContainer.add(shellMesh);
+
+        // Tank Top Conical Dome Roof
+        const roofGeom = new THREE.ConeGeometry(9.0, 3.5, 24);
+        const roofMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.9, roughness: 0.3 });
+        const roofMesh = new THREE.Mesh(roofGeom, roofMat);
+        roofMesh.position.y = 20.5;
+        tankContainer.add(roofMesh);
+
+        // Internal Glowing Liquid Oil Fill Cylinder
+        const liquidGeom = new THREE.CylinderGeometry(8.0, 8.0, 13, 20);
+        const liquidMat = new THREE.MeshStandardMaterial({
+          color: tank.color,
+          emissive: tank.color,
+          emissiveIntensity: 0.4,
+          transparent: true,
+          opacity: 0.7,
+          roughness: 0.15
+        });
+        const liquidMesh = new THREE.Mesh(liquidGeom, liquidMat);
+        liquidMesh.position.y = 7.5;
+        tankContainer.add(liquidMesh);
+        tankFluidMeshes.push(liquidMesh);
+
+        // Level Sight-Glass Column Indicator on Tank Side
+        const sightGeom = new THREE.CylinderGeometry(0.35, 0.35, 14, 8);
+        const sightMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+        const sightMesh = new THREE.Mesh(sightGeom, sightMat);
+        sightMesh.position.set(8.8, 9, 0);
+        tankContainer.add(sightMesh);
+
+        storageGroup.add(tankContainer);
+      });
+
+      scene.add(storageGroup);
+    }
+
+    /* -------------------------------------------------------------
+       5. SURFACE GATHERING MANIFOLD & TANK FEEDER PIPING
+    ------------------------------------------------------------- */
+    function buildSurfaceGatheringPiping() {
+      manifoldGroup = new THREE.Group();
+
+      const mainHeaderPos = new THREE.Vector3(-85, 3.5, 0);
+
+      // Central Gathering Header Trunk
+      const headerGeom = new THREE.CylinderGeometry(1.6, 1.6, 60, 16);
+      const headerMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.9, roughness: 0.1 });
+      const headerMesh = new THREE.Mesh(headerGeom, headerMat);
+      headerMesh.rotation.x = Math.PI / 2;
+      headerMesh.position.copy(mainHeaderPos);
+      manifoldGroup.add(headerMesh);
+
+      // Flowlines from Each Wellhead -> Central Gathering Header
+      wellConfigs.forEach((well) => {
+        const pipePoints = [
+          new THREE.Vector3(well.surfacePos.x, well.surfacePos.y - 2, well.surfacePos.z),
+          new THREE.Vector3(well.surfacePos.x - 10, 3.5, well.surfacePos.z),
+          new THREE.Vector3(-80, 3.5, well.surfacePos.z * 0.7),
+          mainHeaderPos
+        ];
+        const pipeCurve = new THREE.CatmullRomCurve3(pipePoints);
+        well.surfacePipeCurve = pipeCurve;
+
+        const pipeGeom = new THREE.TubeGeometry(pipeCurve, 32, 0.75, 8, false);
+        const pipeMat = new THREE.MeshStandardMaterial({
+          color: well.colorHex,
+          metalness: 0.85,
+          roughness: 0.2
+        });
+        const pipeMesh = new THREE.Mesh(pipeGeom, pipeMat);
+        interactiveObjects.push(pipeMesh);
+        manifoldGroup.add(pipeMesh);
+      });
+
+      // Overhead Delivery Gantry Lines: Header -> Storage Tanks A, B, C
+      const tankTargets = [
+        new THREE.Vector3(-110, 18, -22),
+        new THREE.Vector3(-110, 18, 0),
+        new THREE.Vector3(-110, 18, 22)
+      ];
+
+      tankTargets.forEach((tPos) => {
+        const gantryPoints = [
+          mainHeaderPos,
+          new THREE.Vector3(-98, 18, tPos.z * 0.5),
+          new THREE.Vector3(-108, 18, tPos.z),
+          tPos
+        ];
+        const gantryCurve = new THREE.CatmullRomCurve3(gantryPoints);
+        const gantryGeom = new THREE.TubeGeometry(gantryCurve, 24, 0.9, 8, false);
+        const gantryMat = new THREE.MeshStandardMaterial({ color: 0x10b981, metalness: 0.9, roughness: 0.2 });
+        const gantryMesh = new THREE.Mesh(gantryGeom, gantryMat);
+        manifoldGroup.add(gantryMesh);
+      });
+
+      scene.add(manifoldGroup);
+    }
+
+    /* -------------------------------------------------------------
+       6. DYNAMIC MULTI-STREAM FLUID PARTICLE ENGINE
+    ------------------------------------------------------------- */
+    function createGlowTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 64;
+      canvas.height = 64;
+      const ctx = canvas.getContext('2d');
+
+      const grad = ctx.createRadialGradient(32, 32, 2, 32, 32, 30);
+      grad.addColorStop(0, '#ffffff');
+      grad.addColorStop(0.25, '#67e8f9');
+      grad.addColorStop(0.55, '#0284c7');
+      grad.addColorStop(0.85, 'rgba(56, 189, 248, 0.4)');
+      grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 64, 64);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.needsUpdate = true;
+      return texture;
+    }
+
+    function buildDynamicMultiStreamParticles() {
+      particlesGroup = new THREE.Group();
+      const glowTex = createGlowTexture();
+
+      // 1. Well Tubing Extraction Fluid Streams (Cavern -> Lateral -> Surface)
+      wellConfigs.forEach((well) => {
+        const count = well.particleCount;
+        const geom = new THREE.BufferGeometry();
+        const positions = new Float32Array(count * 3);
+        const velocities = new Float32Array(count);
+        const phases = new Float32Array(count);
+        const colors = new Float32Array(count * 3);
+        const threeColor = new THREE.Color(well.colorHex);
+
+        for (let i = 0; i < count; i++) {
+          phases[i] = Math.random();
+          velocities[i] = 0.0018 + Math.random() * 0.0025;
+
+          const pt = well.curve.getPoint(phases[i]);
+          positions[i * 3] = pt.x;
+          positions[i * 3 + 1] = pt.y;
+          positions[i * 3 + 2] = pt.z;
+
+          const mix = Math.random();
+          colors[i * 3] = threeColor.r * (0.8 + mix * 0.35);
+          colors[i * 3 + 1] = threeColor.g * (0.8 + mix * 0.35);
+          colors[i * 3 + 2] = threeColor.b * (0.8 + mix * 0.35);
+        }
+
+        geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        const mat = new THREE.PointsMaterial({
+          size: 5.4,
+          map: glowTex,
+          vertexColors: true,
+          transparent: true,
+          opacity: 0.95,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+          sizeAttenuation: true
+        });
+
+        const points = new THREE.Points(geom, mat);
+        particlesGroup.add(points);
+
+        wellParticleSystems.push({
+          well: well,
+          system: points,
+          positions: positions,
+          velocities: velocities,
+          phases: phases,
+          count: count
+        });
+      });
+
+      // 2. Deep Reservoir Oil Pool Swirling Particles
+      const resCount = 2400;
+      const rGeom = new THREE.BufferGeometry();
+      resPositions = new Float32Array(resCount * 3);
+      const rColors = new Float32Array(resCount * 3);
+
+      for (let i = 0; i < resCount; i++) {
+        const radius = Math.random() * 78;
+        const angle = Math.random() * Math.PI * 2;
+        resPositions[i * 3] = 10 + Math.cos(angle) * radius;
+        resPositions[i * 3 + 1] = -135 + (Math.random() - 0.5) * 6.0;
+        resPositions[i * 3 + 2] = 10 + Math.sin(angle) * radius;
+
+        rColors[i * 3] = 0.98;
+        rColors[i * 3 + 1] = 0.65;
+        rColors[i * 3 + 2] = 0.15;
+      }
+      rGeom.setAttribute('position', new THREE.BufferAttribute(resPositions, 3));
+      rGeom.setAttribute('color', new THREE.BufferAttribute(rColors, 3));
+
+      const rMat = new THREE.PointsMaterial({
+        size: 5.8,
+        map: glowTex,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.85,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        sizeAttenuation: true
+      });
+      reservoirParticleSystem = new THREE.Points(rGeom, rMat);
+      particlesGroup.add(reservoirParticleSystem);
+
+      // 3. Surface Gathering Manifold Streams (Wellheads -> Header)
+      const mCount = 900;
+      const mGeom = new THREE.BufferGeometry();
+      manifoldPositions = new Float32Array(mCount * 3);
+      manifoldPhases = new Float32Array(mCount);
+      const mColors = new Float32Array(mCount * 3);
+
+      for (let i = 0; i < mCount; i++) {
+        manifoldPhases[i] = Math.random();
+        const wIdx = i % 6;
+        const pt = wellConfigs[wIdx].surfacePipeCurve.getPoint(manifoldPhases[i]);
+        manifoldPositions[i * 3] = pt.x;
+        manifoldPositions[i * 3 + 1] = pt.y;
+        manifoldPositions[i * 3 + 2] = pt.z;
+
+        const wCol = new THREE.Color(wellConfigs[wIdx].colorHex);
+        mColors[i * 3] = wCol.r;
+        mColors[i * 3 + 1] = wCol.g;
+        mColors[i * 3 + 2] = wCol.b;
+      }
+      mGeom.setAttribute('position', new THREE.BufferAttribute(manifoldPositions, 3));
+      mGeom.setAttribute('color', new THREE.BufferAttribute(mColors, 3));
+
+      const mMat = new THREE.PointsMaterial({
+        size: 5.6,
+        map: glowTex,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.95,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        sizeAttenuation: true
+      });
+      manifoldParticleSystem = new THREE.Points(mGeom, mMat);
+      particlesGroup.add(manifoldParticleSystem);
+
+      // 4. Delivery Streams into Storage Tanks (Header -> Tanks)
+      const stCount = 600;
+      const stGeom = new THREE.BufferGeometry();
+      storagePositions = new Float32Array(stCount * 3);
+      storagePhases = new Float32Array(stCount);
+      const stColors = new Float32Array(stCount * 3);
+
+      for (let i = 0; i < stCount; i++) {
+        storagePhases[i] = Math.random();
+        const tIdx = i % 3;
+        const targetZ = (tIdx - 1) * 22;
+        const prog = storagePhases[i];
+
+        storagePositions[i * 3] = -85 - prog * 25;
+        storagePositions[i * 3 + 1] = 3.5 + prog * 14.5;
+        storagePositions[i * 3 + 2] = targetZ * prog;
+
+        stColors[i * 3] = 0.1;
+        stColors[i * 3 + 1] = 0.9;
+        stColors[i * 3 + 2] = 0.5;
+      }
+      stGeom.setAttribute('position', new THREE.BufferAttribute(storagePositions, 3));
+      stGeom.setAttribute('color', new THREE.BufferAttribute(stColors, 3));
+
+      const stMat = new THREE.PointsMaterial({
+        size: 6.2,
+        map: glowTex,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.95,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        sizeAttenuation: true
+      });
+      storageInflowParticles = new THREE.Points(stGeom, stMat);
+      particlesGroup.add(storageInflowParticles);
+
+      scene.add(particlesGroup);
+    }
+
+    /* -------------------------------------------------------------
+       7. Master Animation Loop (Kinematics & Multi-Pipe Physics)
+    ------------------------------------------------------------- */
+    function animate() {
+      requestAnimationFrame(animate);
+
+      let totalFieldBOPD = 0;
+      let totalFieldGas = 0;
+      let sumSPM = 0;
+
+      // Animate Each Well System Independently
+      wellParticleSystems.forEach((item) => {
+        const well = item.well;
+        const currentSPM = well.spm;
+        const spmRatio = currentSPM / 5.3;
+        const pumpSpeed = (currentSPM / 118);
+
+        well.phase += pumpSpeed;
+        const isUpstroke = Math.cos(well.phase) > 0;
+        const strokeNorm = (Math.sin(well.phase) + 1) / 2;
+
+        // Animate Wellhead Walking Beam & Sucker Rod
+        if (well.pumpBeam) {
+          well.pumpBeam.rotation.z = Math.sin(well.phase) * 0.15;
+        }
+        if (well.rodMesh) {
+          well.rodMesh.position.y = -20 + Math.sin(well.phase) * 2.8;
+        }
+
+        // Animate Fluid Stream (Reservoir Deep Intake -> Wellhead)
+        const pos = item.positions;
+        const phases = item.phases;
+        const vels = item.velocities;
+        const count = item.count;
+
+        for (let i = 0; i < count; i++) {
+          const speedMod = (isUpstroke ? 1.6 : 0.45) * spmRatio;
+          phases[i] += vels[i] * speedMod; // Flow upwards from reservoir (0.0) to surface (1.0)
+          if (phases[i] > 1.0) {
+            phases[i] = Math.random() * 0.05; // Respawn at deep intake
+          }
+
+          const pt = well.curve.getPoint(phases[i]);
+          const spiral = well.phase * 3.5 + i * 0.3;
+          const rad = 0.85 * (1.0 - phases[i] * 0.12);
+
+          pos[i * 3] = pt.x + Math.cos(spiral) * rad;
+          pos[i * 3 + 1] = pt.y + Math.sin(spiral) * rad * 0.4;
+          pos[i * 3 + 2] = pt.z + Math.sin(spiral) * rad;
+        }
+        item.system.geometry.attributes.position.needsUpdate = true;
+
+        // Compute Live Telemetry for this Well
+        const wellBOPD = currentSPM * well.nominalBOPD * (0.96 + (isUpstroke ? strokeNorm * 0.07 : -0.03));
+        const wellGas = wellBOPD * 0.48;
+
+        totalFieldBOPD += wellBOPD;
+        totalFieldGas += wellGas;
+        sumSPM += currentSPM;
+
+        const microSPM = document.getElementById(`micro-spm-${well.id}`);
+        if (microSPM) microSPM.textContent = `${currentSPM.toFixed(1)} SPM`;
+      });
+
+      // Animate Deep Reservoir Fluid Swirl
+      if (reservoirParticleSystem) {
+        const rPos = resPositions;
+        const count = rPos.length / 3;
+        for (let i = 0; i < count; i++) {
+          const x = rPos[i * 3] - 10;
+          const z = rPos[i * 3 + 2] - 10;
+          const angle = Math.atan2(z, x) + 0.006;
+          const radius = Math.sqrt(x * x + z * z);
+
+          rPos[i * 3] = 10 + Math.cos(angle) * radius;
+          rPos[i * 3 + 1] = -135 + Math.sin(angle * 3 + i) * 1.5;
+          rPos[i * 3 + 2] = 10 + Math.sin(angle) * radius;
+        }
+        reservoirParticleSystem.geometry.attributes.position.needsUpdate = true;
+      }
+
+      // Animate Surface Manifold Flowlines (Wellheads -> Header)
+      if (manifoldParticleSystem) {
+        const mPos = manifoldPositions;
+        const count = manifoldPhases.length;
+        for (let i = 0; i < count; i++) {
+          const wIdx = i % 6;
+          const well = wellConfigs[wIdx];
+          const spmRatio = well.spm / 5.3;
+
+          manifoldPhases[i] += 0.0052 * spmRatio;
+          if (manifoldPhases[i] > 1.0) manifoldPhases[i] = 0;
+
+          const pt = well.surfacePipeCurve.getPoint(manifoldPhases[i]);
+          mPos[i * 3] = pt.x;
+          mPos[i * 3 + 1] = pt.y + Math.sin(well.phase * 4 + i) * 0.2;
+          mPos[i * 3 + 2] = pt.z;
+        }
+        manifoldParticleSystem.geometry.attributes.position.needsUpdate = true;
+      }
+
+      // Animate Delivery Gantry into Storage Tanks
+      if (storageInflowParticles) {
+        const sPos = storagePositions;
+        const count = storagePhases.length;
+        for (let i = 0; i < count; i++) {
+          const tIdx = i % 3;
+          const targetZ = (tIdx - 1) * 22;
+
+          storagePhases[i] += 0.0065;
+          if (storagePhases[i] > 1.0) storagePhases[i] = 0;
+
+          const prog = storagePhases[i];
+          sPos[i * 3] = -85 - prog * 25;
+          sPos[i * 3 + 1] = 3.5 + Math.sin(prog * Math.PI) * 16.5;
+          sPos[i * 3 + 2] = targetZ * prog;
+        }
+        storageInflowParticles.geometry.attributes.position.needsUpdate = true;
+      }
+
+      // Animate Dynamic Liquid Level in Storage Tanks
+      tankFluidMeshes.forEach((mesh, idx) => {
+        mesh.scale.y = 0.92 + Math.sin(Date.now() * 0.002 + idx) * 0.04;
+      });
+
+      // Increment Accumulated Storage Barrel Counters
+      totalStoredBarrels += (totalFieldBOPD / 86400) * 0.05;
+      if (totalStoredBarrels > maxStorageCapacity) totalStoredBarrels = maxStorageCapacity * 0.72;
+      const fillPct = (totalStoredBarrels / maxStorageCapacity) * 100;
+
+      // Update Aggregated HUD
+      const elTotalFlow = document.getElementById('hud-total-flow');
+      const elTotalGas = document.getElementById('hud-total-gas');
+      const elAvgVel = document.getElementById('hud-avg-vel');
+      const elManifoldP = document.getElementById('hud-manifold-press');
+      const elStoredBbl = document.getElementById('hud-stored-bbl');
+      const elTankFillPct = document.getElementById('tank-fill-pct');
+      const elTankBar = document.getElementById('tank-bar');
+
+      if (elTotalFlow) elTotalFlow.textContent = `${totalFieldBOPD.toFixed(1)} BOPD`;
+      if (elTotalGas) elTotalGas.textContent = `${totalFieldGas.toFixed(1)} MSCFD`;
+      if (elAvgVel) elAvgVel.textContent = `${(sumSPM / 6).toFixed(1)} SPM`;
+      if (elManifoldP) elManifoldP.textContent = `${(74.0 + (totalFieldBOPD / 2000) * 6.5).toFixed(1)} bar`;
+      if (elStoredBbl) elStoredBbl.textContent = `${totalStoredBarrels.toFixed(0)} / ${maxStorageCapacity.toLocaleString()} BBL`;
+      if (elTankFillPct) elTankFillPct.textContent = `${fillPct.toFixed(1)}%`;
+      if (elTankBar) elTankBar.style.width = `${fillPct.toFixed(1)}%`;
+
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    /* -------------------------------------------------------------
+       8. Interactive Raycasting & Tooltips
+    ------------------------------------------------------------- */
+    function onMouseMove(event) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(interactiveObjects, false);
+
+      const tt = document.getElementById('tooltip-3d');
+      if (intersects.length > 0) {
+        const obj = intersects[0].object;
+        if (obj.userData) {
+          if (obj.userData.wellId) {
+            const well = wellConfigs.find(w => w.id === obj.userData.wellId);
+            if (well) {
+              document.getElementById('tt-title').textContent = well.name;
+              document.getElementById('tt-title').style.color = well.colorCss;
+              document.getElementById('tt-status').textContent = 'ACTIVE EXTRACTION';
+              document.getElementById('tt-spm').textContent = `${well.spm.toFixed(1)} SPM`;
+              document.getElementById('tt-flow').textContent = `${(well.spm * well.nominalBOPD).toFixed(0)} BOPD`;
+              document.getElementById('tt-press').textContent = `${(82 + well.spm * 0.4).toFixed(1)} bar`;
+              document.getElementById('tt-tvd').textContent = `${Math.abs(well.lateralToe.y * 18.5).toFixed(0)} m`;
+
+              tt.style.display = 'block';
+              tt.style.left = `${event.clientX}px`;
+              tt.style.top = `${event.clientY}px`;
+              return;
+            }
+          } else if (obj.userData.isTank) {
+            document.getElementById('tt-title').textContent = obj.userData.name;
+            document.getElementById('tt-title').style.color = '#10b981';
+            document.getElementById('tt-status').textContent = 'STORAGE INFLOW';
+            document.getElementById('tt-spm').textContent = 'Direct Gantry';
+            document.getElementById('tt-flow').textContent = '1,842 BOPD';
+            document.getElementById('tt-press').textContent = '1.8 bar (Atm)';
+            document.getElementById('tt-tvd').textContent = '+18.0 m Elev';
+
+            tt.style.display = 'block';
+            tt.style.left = `${event.clientX}px`;
+            tt.style.top = `${event.clientY}px`;
+            return;
+          } else if (obj.userData.isReservoir) {
+            document.getElementById('tt-title').textContent = obj.userData.name;
+            document.getElementById('tt-title').style.color = '#f59e0b';
+            document.getElementById('tt-status').textContent = 'PAYZONE SOURCE';
+            document.getElementById('tt-spm').textContent = 'Hydrostatic';
+            document.getElementById('tt-flow').textContent = '6 Multi-Pipes';
+            document.getElementById('tt-press').textContent = '184.5 bar';
+            document.getElementById('tt-tvd').textContent = '2,480 m TVD';
+
+            tt.style.display = 'block';
+            tt.style.left = `${event.clientX}px`;
+            tt.style.top = `${event.clientY}px`;
+            return;
+          }
+        }
+      }
+      tt.style.display = 'none';
+    }
+
+    /* -------------------------------------------------------------
+       9. Multi-Pipe Governor & UI Controls
+    ------------------------------------------------------------- */
+    function adjustPipeSPM(pipeId, val) {
+      const spm = parseFloat(val);
+      const well = wellConfigs.find(w => w.id === pipeId);
+      if (well) {
+        well.spm = spm;
+        const valEl = document.getElementById(`slider-spm-${pipeId}-val`);
+        if (valEl) valEl.textContent = `${spm.toFixed(1)} SPM`;
+      }
+    }
+
+    function syncAllPipes(targetSPM) {
+      wellConfigs.forEach(well => {
+        well.spm = targetSPM;
+        const slider = document.getElementById(`spm-pipe-${well.id}`);
+        const valEl = document.getElementById(`slider-spm-${well.id}-val`);
+        if (slider) slider.value = targetSPM;
+        if (valEl) valEl.textContent = `${targetSPM.toFixed(1)} SPM`;
+      });
+    }
+
+    function applyPreset(type) {
+      if (type === 'surge') {
+        wellConfigs[0].spm = 9.5;
+        wellConfigs[1].spm = 10.2;
+        wellConfigs[2].spm = 8.8;
+        wellConfigs[3].spm = 9.8;
+        wellConfigs[4].spm = 9.0;
+        wellConfigs[5].spm = 9.4;
+      } else if (type === 'balanced') {
+        wellConfigs[0].spm = 5.3;
+        wellConfigs[1].spm = 7.2;
+        wellConfigs[2].spm = 4.0;
+        wellConfigs[3].spm = 6.5;
+        wellConfigs[4].spm = 5.8;
+        wellConfigs[5].spm = 6.0;
+      } else if (type === 'eco') {
+        wellConfigs[0].spm = 2.5;
+        wellConfigs[1].spm = 2.8;
+        wellConfigs[2].spm = 2.0;
+        wellConfigs[3].spm = 2.6;
+        wellConfigs[4].spm = 2.4;
+        wellConfigs[5].spm = 2.5;
+      }
+      wellConfigs.forEach(w => {
+        const slider = document.getElementById(`spm-pipe-${w.id}`);
+        const valEl = document.getElementById(`slider-spm-${w.id}-val`);
+        if (slider) slider.value = w.spm;
+        if (valEl) valEl.textContent = `${w.spm.toFixed(1)} SPM`;
+      });
+    }
+
+    function adjustParticleSize(val) {
+      const size = parseFloat(val);
+      wellParticleSystems.forEach(item => {
+        if (item.system && item.system.material) item.system.material.size = size;
+      });
+      if (reservoirParticleSystem && reservoirParticleSystem.material) reservoirParticleSystem.material.size = size * 1.1;
+      if (manifoldParticleSystem && manifoldParticleSystem.material) manifoldParticleSystem.material.size = size * 1.05;
+      if (storageInflowParticles && storageInflowParticles.material) storageInflowParticles.material.size = size * 1.15;
+      document.getElementById('slider-size-val').textContent = `${size.toFixed(1)} px`;
+    }
+
+    /* -------------------------------------------------------------
+       10. Camera Navigation & Layer Toggles
+    ------------------------------------------------------------- */
+    function focusTarget(target) {
+      if (!controls) return;
+      if (target === 'field') {
+        animateCamera(220, 130, 260, 30, -50, 30);
+      } else if (target === 'reservoir') {
+        animateCamera(70, -110, 80, 10, -135, 10);
+      } else if (target === 'storage') {
+        animateCamera(-85, 35, 45, -110, 10, 0);
+      } else if (target === 'manifold') {
+        animateCamera(-60, 25, 30, -85, 4, 0);
+      } else if (target === 'well1') {
+        animateCamera(80, -70, 120, 140, -112, 75);
+      } else if (target === 'well2') {
+        animateCamera(75, -85, 190, 150, -122, 160);
+      } else if (target === 'well3') {
+        animateCamera(90, -65, -15, 165, -98, -60);
+      } else if (target === 'well4') {
+        animateCamera(55, -75, 145, 120, -114, 120);
+      } else if (target === 'well5') {
+        animateCamera(70, -80, 10, 135, -130, -15);
+      } else if (target === 'well6') {
+        animateCamera(65, -75, 60, 145, -125, 40);
+      }
+    }
+
+    function animateCamera(px, py, pz, tx, ty, tz) {
+      gsap.to(camera.position, {
+        x: px, y: py, z: pz,
+        duration: 1.4,
+        ease: "power2.inOut"
+      });
+      gsap.to(controls.target, {
+        x: tx, y: ty, z: tz,
+        duration: 1.4,
+        ease: "power2.inOut",
+        onUpdate: () => controls.update()
+      });
+    }
+
+    function toggleLayer(layer) {
+      if (layer === 'particles' && particlesGroup) {
+        showParticles = !showParticles;
+        particlesGroup.visible = showParticles;
+        document.getElementById('toggle-particles-btn').classList.toggle('opacity-50', !showParticles);
+      } else if (layer === 'strata' && strataGroup) {
+        showStrata = !showStrata;
+        strataGroup.visible = showStrata;
+        document.getElementById('toggle-strata-btn').classList.toggle('opacity-50', !showStrata);
+      } else if (layer === 'casing' && casingsGroup) {
+        showCasing = !showCasing;
+        casingsGroup.visible = showCasing;
+        document.getElementById('toggle-casing-btn').classList.toggle('opacity-50', !showCasing);
+      } else if (layer === 'reservoir' && reservoirGroup) {
+        showReservoir = !showReservoir;
+        reservoirGroup.visible = showReservoir;
+        document.getElementById('toggle-reservoir-btn').classList.toggle('opacity-50', !showReservoir);
+      } else if (layer === 'storage' && storageGroup) {
+        showStorage = !showStorage;
+        storageGroup.visible = showStorage;
+        document.getElementById('toggle-storage-btn').classList.toggle('opacity-50', !showStorage);
+      }
+    }
+
+    function onWindowResize() {
+      const container = document.getElementById('three-container');
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    }
+
+    // Initialize 3D Digital Twin on Load
+    window.onload = () => {
+      init3DScene();
+      animate();
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+  <title>BHOROS | Live Well State</title>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Nunito+Sans:wght@700;800&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+  <style>
+    @layer base {
+      html, body {
+        width: 100vw;
+        margin: 0;
+        padding: 0;
+        background-color: #F8FAFC;
+      }
+      body {
+        overscroll-behavior: none;
+        -webkit-font-smoothing: antialiased;
+      }
+      .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+      .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+      main > :first-child { margin-top: 0 !important; }
+      main > :last-child { margin-bottom: 0 !important; }
+    }
+    ::-webkit-scrollbar { display: none; }
+    body { min-height: max(884px, 100dvh); }
+  </style>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#FFFFFF",
+            "background": "#F8FAFC",
+            "border-subtle": "#E2E8F0",
+            "text-main": "#0F172A",
+            "text-body": "#334155",
+            "text-muted": "#64748B",
+            "primary": "#0284c7",
+            "primary-dark": "#0369a1",
+            "primary-light": "#e0f2fe",
+            "accent-green": "#16a34a",
+            "accent-green-bg": "#dcfce7",
+            "accent-warn": "#ea580c",
+            "accent-warn-bg": "#ffedd5"
+          },
+          fontFamily: {
+            "sans": ["IBM Plex Sans", "sans-serif"],
+            "mono": ["IBM Plex Mono", "monospace"],
+            "alert": ["Nunito Sans", "sans-serif"]
+          },
+          fontSize: {
+            "h1": ["28px", { lineHeight: "34px", letterSpacing: "-0.5px", fontWeight: "700" }],
+            "h2": ["20px", { lineHeight: "26px", letterSpacing: "-0.2px", fontWeight: "600" }],
+            "body-measure": ["16px", { lineHeight: "20px", letterSpacing: "-0.01em", fontWeight: "600" }],
+            "alert-badge": ["12px", { lineHeight: "16px", letterSpacing: "0.08em", fontWeight: "800" }]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-background text-text-body font-sans flex flex-col min-h-screen">
+  <!-- Fixed Light Header -->
+  <header class="fixed top-0 inset-x-0 z-50 bg-surface/95 backdrop-blur-md border-b border-border-subtle shadow-sm pt-safe">
+    <div class="h-20 px-3 flex flex-col justify-center gap-1 max-w-4xl mx-auto">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2 min-w-0">
+          <a href="index.html#live-well" class="flex items-center gap-2">
+            <div class="h-8 w-8 rounded-lg bg-slate-900 flex items-center justify-center p-1 shadow-sm shrink-0">
+              <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+                <rect width="100" height="100" rx="20" fill="#0f172a"/>
+                <path d="M50 15 L78 35 L78 68 L50 88 L22 68 L22 35 Z" stroke="#38bdf8" stroke-width="5" fill="#1e293b" />
+                <path d="M50 25 L50 78" stroke="#2ecc71" stroke-width="4" stroke-dasharray="6 3"/>
+                <circle cx="50" cy="50" r="14" fill="#0284c7" stroke="#38bdf8" stroke-width="3"/>
+                <path d="M36 50 H64" stroke="#f39c12" stroke-width="3"/>
+                <circle cx="50" cy="50" r="5" fill="#ffffff"/>
+              </svg>
+            </div>
+            <div class="flex items-center gap-1.5 truncate">
+              <span class="font-sans font-bold text-sm text-primary uppercase tracking-tight">BHOROS</span>
+              <span class="text-border-subtle font-normal">|</span>
+              <h1 class="font-sans font-semibold text-sm text-text-main truncate">Live Well</h1>
+            </div>
+          </a>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <div class="w-8 h-8 rounded-full bg-primary-light text-primary flex items-center justify-center border border-sky-200">
+            <span class="material-symbols-outlined text-[18px]">person</span>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-1.5 text-xs">
+          <span class="font-mono text-[11px] text-text-muted uppercase tracking-wider font-medium">WELL:</span>
+          <span class="font-mono text-[11px] text-primary font-bold tracking-wide">PERMIAN-NV-402B</span>
+        </div>
+        <div class="inline-flex items-center gap-1.5 bg-accent-green-bg border border-green-200 px-2 py-0.5 rounded-full">
+          <span class="w-2 h-2 rounded-full bg-accent-green animate-pulse"></span>
+          <span class="font-alert text-alert-badge text-accent-green uppercase">OK</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Telemetry Viewport -->
+  <main class="flex flex-col relative w-full pt-24 pb-24 bg-background min-h-screen max-w-4xl mx-auto px-3 gap-3.5">
+    <!-- Screen Header & Live Polling Status -->
+    <div class="flex flex-col gap-1 mt-1">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div class="flex items-center gap-1.5 text-xs font-semibold">
+          <span class="text-primary uppercase tracking-tight">BHOROS</span>
+          <span class="text-border-subtle font-normal">|</span>
+          <span class="text-text-muted">Live Well State</span>
+        </div>
+        <div class="flex items-center gap-1.5 bg-sky-50 border border-sky-200 px-2.5 py-1 rounded-full shadow-2xs">
+          <span class="w-2 h-2 rounded-full bg-accent-green animate-ping"></span>
+          <span class="font-alert text-alert-badge text-primary uppercase">STREAMING (0.5s POLLING)</span>
+        </div>
+      </div>
+      <h1 class="font-sans text-h1 text-text-main font-bold mt-1">Live Well State</h1>
+      <h2 class="font-sans text-h2 text-text-body font-semibold">Real-Time Telemetry & Downhole Sensors</h2>
+      
+      <!-- Digital Twin Subsurface Model Telemetry Badge -->
+      <div class="mt-1 flex items-center justify-between bg-white border border-border-subtle rounded-lg p-2.5 shadow-xs">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[20px] text-primary">model_training</span>
+          <div class="flex flex-col">
+            <span class="text-[11px] font-bold tracking-wide uppercase text-text-main">Digital Twin Subsurface Model</span>
+            <span class="text-[10px] text-text-muted font-medium">Borehole Kinematics & Rheology Predictive Engine</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+          <span class="w-2 h-2 rounded-full bg-accent-green"></span>
+          <span class="font-alert text-[11px] text-accent-green font-extrabold uppercase tracking-wide">SYNCED</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Metrics Strip -->
+    <div class="w-full bg-surface border border-border-subtle rounded-lg p-2.5 shadow-sm flex items-center justify-between gap-2 overflow-x-auto">
+      <div class="flex items-center gap-2.5 min-w-max">
+        <div class="flex items-center justify-center w-8 h-8 rounded-md bg-primary-light text-primary">
+          <span class="material-symbols-outlined text-[18px]">chevron_forward</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-[11px] text-text-muted uppercase tracking-wider font-semibold">STROKE FREQ</span>
+          <div class="flex items-baseline gap-1">
+            <span class="font-mono text-body-measure text-text-main" id="spm-val">5.4</span>
+            <span class="text-[11px] text-text-muted font-mono">min⁻¹</span>
+          </div>
+        </div>
+      </div>
+      <div class="h-6 w-px bg-border-subtle shrink-0"></div>
+      <div class="flex items-center gap-2.5 min-w-max">
+        <div class="flex items-center justify-center w-8 h-8 rounded-md bg-primary-light text-primary">
+          <span class="material-symbols-outlined text-[18px]">speed</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-[11px] text-text-muted uppercase tracking-wider font-semibold">GEAR TORQUE</span>
+          <div class="flex items-baseline gap-1">
+            <span class="font-mono text-body-measure text-text-main" id="torque-val">72</span>
+            <span class="text-[11px] text-text-muted font-mono">%</span>
+          </div>
+        </div>
+      </div>
+      <div class="h-6 w-px bg-border-subtle shrink-0"></div>
+      <div class="flex items-center gap-2.5 min-w-max">
+        <div class="flex items-center justify-center w-8 h-8 rounded-md bg-emerald-50 text-accent-green border border-emerald-100">
+          <span class="material-symbols-outlined text-[18px]">verified</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-[11px] text-text-muted uppercase tracking-wider font-semibold">EFFICIENCY</span>
+          <div class="flex items-baseline gap-1">
+            <span class="font-mono text-body-measure text-accent-green font-bold">94.8</span>
+            <span class="text-[11px] text-text-muted font-mono">%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Downhole Radial Gauges Panel -->
+    <div class="bg-surface border border-border-subtle rounded-lg p-3 shadow-sm flex flex-col gap-2">
+      <div class="flex items-center justify-between border-b border-border-subtle pb-2">
+        <span class="text-[11px] text-text-muted tracking-wider uppercase font-bold">DOWNHOLE RADIAL INSTRUMENTATION</span>
+        <span class="material-symbols-outlined text-[18px] text-text-muted">explore</span>
+      </div>
+      <div class="grid grid-cols-3 gap-2 pt-1">
+        <!-- Gauge 1: Pressure -->
+        <div class="flex flex-col items-center bg-background border border-border-subtle p-2 rounded-lg">
+          <div class="relative w-20 h-20 flex items-center justify-center">
+            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+              <path class="text-slate-200" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="100, 100" stroke-width="3"></path>
+              <path class="text-primary" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="70.1, 100" stroke-linecap="round" stroke-width="3"></path>
+            </svg>
+            <div class="absolute flex flex-col items-center justify-center text-center">
+              <span class="font-mono text-body-measure text-text-main font-bold" id="rad-p-val">84.2</span>
+              <span class="text-[10px] font-mono text-text-muted">bar</span>
+            </div>
+          </div>
+          <span class="text-[11px] text-text-body mt-1 text-center font-semibold">Pressure P</span>
+          <span class="text-[9px] font-mono text-text-muted">Max: 120 bar</span>
+        </div>
+        <!-- Gauge 2: Temperature -->
+        <div class="flex flex-col items-center bg-background border border-border-subtle p-2 rounded-lg">
+          <div class="relative w-20 h-20 flex items-center justify-center">
+            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+              <path class="text-slate-200" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="100, 100" stroke-width="3"></path>
+              <path class="text-accent-green" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="74.2, 100" stroke-linecap="round" stroke-width="3"></path>
+            </svg>
+            <div class="absolute flex flex-col items-center justify-center text-center">
+              <span class="font-mono text-body-measure text-text-main font-bold" id="rad-t-val">148.4</span>
+              <span class="text-[10px] font-mono text-text-muted">°C</span>
+            </div>
+          </div>
+          <span class="text-[11px] text-text-body mt-1 text-center font-semibold">Temp T</span>
+          <span class="text-[9px] font-mono text-text-muted">Max: 200 °C</span>
+        </div>
+        <!-- Gauge 3: Rod Load -->
+        <div class="flex flex-col items-center bg-background border border-border-subtle p-2 rounded-lg">
+          <div class="relative w-20 h-20 flex items-center justify-center">
+            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+              <path class="text-slate-200" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="100, 100" stroke-width="3"></path>
+              <path class="text-accent-warn" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="80.5, 100" stroke-linecap="round" stroke-width="3"></path>
+            </svg>
+            <div class="absolute flex flex-col items-center justify-center text-center">
+              <span class="font-mono text-body-measure text-text-main font-bold" id="rad-f-val">68.5</span>
+              <span class="text-[10px] font-mono text-text-muted">kN</span>
+            </div>
+          </div>
+          <span class="text-[11px] text-text-body mt-1 text-center font-semibold">Rod Load</span>
+          <span class="text-[9px] font-mono text-text-muted">Max: 85 kN</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sensor Cards Grid -->
+    <div class="grid grid-cols-2 gap-2.5">
+      <!-- P-101 TEMP -->
+      <div class="bg-surface border border-border-subtle rounded-lg p-2.5 flex flex-col justify-between shadow-xs">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-[10px] font-bold text-text-muted uppercase tracking-wider">P-101 TEMP T</span>
+          <span class="font-alert text-[10px] text-accent-green bg-accent-green-bg border border-green-200 px-1.5 py-0.5 rounded-full font-bold uppercase">OK</span>
+        </div>
+        <div class="flex items-baseline gap-1 my-0.5">
+          <span class="font-mono text-body-measure text-text-main font-bold" id="val-temp">148.4</span>
+          <span class="text-[11px] font-mono text-text-muted font-medium">°C</span>
+        </div>
+        <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-1 border border-slate-200">
+          <div class="bg-accent-green h-full rounded-full" style="width: 74%;"></div>
+        </div>
+        <span class="text-[10px] font-mono text-text-muted mt-1.5">Target: 145-152 °C</span>
+      </div>
+      <!-- P-102 HEAD P -->
+      <div class="bg-surface border border-border-subtle rounded-lg p-2.5 flex flex-col justify-between shadow-xs">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-[10px] font-bold text-text-muted uppercase tracking-wider">P-102 HEAD P</span>
+          <span class="font-alert text-[10px] text-accent-green bg-accent-green-bg border border-green-200 px-1.5 py-0.5 rounded-full font-bold uppercase">OK</span>
+        </div>
+        <div class="flex items-baseline gap-1 my-0.5">
+          <span class="font-mono text-body-measure text-text-main font-bold" id="val-press">84.2</span>
+          <span class="text-[11px] font-mono text-text-muted font-medium">bar</span>
+        </div>
+        <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-1 border border-slate-200">
+          <div class="bg-primary h-full rounded-full" style="width: 70%;"></div>
+        </div>
+        <span class="text-[10px] font-mono text-text-muted mt-1.5">Casing Head Press.</span>
+      </div>
+      <!-- P-103 VISCOSITY -->
+      <div class="bg-surface border border-orange-200 rounded-lg p-2.5 flex flex-col justify-between shadow-xs">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-[10px] font-bold text-text-muted uppercase tracking-wider">P-103 VISCOSITY μ</span>
+          <span class="font-alert text-[10px] text-accent-warn bg-accent-warn-bg border border-orange-200 px-1.5 py-0.5 rounded-full font-bold uppercase">WARN</span>
+        </div>
+        <div class="flex items-baseline gap-1 my-0.5">
+          <span class="font-mono text-body-measure text-accent-warn font-bold" id="val-visc">42.8</span>
+          <span class="text-[11px] font-mono text-text-muted font-medium">cP</span>
+        </div>
+        <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-1 border border-slate-200">
+          <div class="bg-accent-warn h-full rounded-full" style="width: 82%;"></div>
+        </div>
+        <span class="text-[10px] font-mono text-accent-warn font-medium mt-1.5">Threshold &gt; 40 cP</span>
+      </div>
+      <!-- P-104 ROD FORCE -->
+      <div class="bg-surface border border-border-subtle rounded-lg p-2.5 flex flex-col justify-between shadow-xs">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-[10px] font-bold text-text-muted uppercase tracking-wider">P-104 ROD FORCE</span>
+          <span class="font-alert text-[10px] text-accent-green bg-accent-green-bg border border-green-200 px-1.5 py-0.5 rounded-full font-bold uppercase">OK</span>
+        </div>
+        <div class="flex items-baseline gap-1 my-0.5">
+          <span class="font-mono text-body-measure text-text-main font-bold" id="val-rod">68.5</span>
+          <span class="text-[11px] font-mono text-text-muted font-medium">kN</span>
+        </div>
+        <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-1 border border-slate-200">
+          <div class="bg-primary h-full rounded-full" style="width: 80%;"></div>
+        </div>
+        <span class="text-[10px] font-mono text-text-muted mt-1.5">Peak Limit: 75.0 kN</span>
+      </div>
+    </div>
+
+    <!-- Telemetry Chart Card -->
+    <div class="bg-surface border border-border-subtle rounded-lg p-3 shadow-sm flex flex-col gap-2">
+      <div class="flex items-center justify-between border-b border-border-subtle pb-2">
+        <span class="text-[11px] text-text-muted tracking-wider uppercase font-bold">DOWNHOLE DYNAMICS TELEMETRY</span>
+        <div class="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+          <span class="w-1.5 h-1.5 rounded-full bg-accent-green"></span>
+          <span class="text-[10px] font-semibold text-accent-green uppercase">Active Sync</span>
+        </div>
+      </div>
+      <div class="w-full h-32 bg-background border border-border-subtle rounded-lg p-2.5 relative flex flex-col justify-between">
+        <div class="flex justify-between items-center text-text-muted text-[10px] font-mono font-medium">
+          <span>PRESSURE GRADIENT TREND (LAST 60 SEC)</span>
+          <span class="text-primary font-bold">AVG 84.1 bar</span>
+        </div>
+        <div class="w-full h-20 flex items-end">
+          <svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 280 60">
+            <defs>
+              <lineargradient id="telemetryGrad" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#0284c7" stop-opacity="0.25"></stop>
+                <stop offset="100%" stop-color="#0284c7" stop-opacity="0.0"></stop>
+              </lineargradient>
+            </defs>
+            <line stroke="#E2E8F0" stroke-dasharray="3 3" stroke-width="1" x1="0" x2="280" y1="15" y2="15"></line>
+            <line stroke="#E2E8F0" stroke-dasharray="3 3" stroke-width="1" x1="0" x2="280" y1="35" y2="35"></line>
+            <path d="M0,45 Q20,38 40,42 T80,30 T120,36 T160,24 T200,28 T240,18 T280,22 L280,60 L0,60 Z" fill="url(#telemetryGrad)"></path>
+            <path d="M0,45 Q20,38 40,42 T80,30 T120,36 T160,24 T200,28 T240,18 T280,22" fill="none" stroke="#0284c7" stroke-width="2.5"></path>
+          </svg>
+        </div>
+        <div class="flex justify-between text-text-muted font-mono text-[9px] pt-1 border-t border-border-subtle">
+          <span>-60s</span>
+          <span>-45s</span>
+          <span>-30s</span>
+          <span>-15s</span>
+          <span class="font-bold text-primary">LIVE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="grid grid-cols-2 gap-2 pb-2">
+      <a href="index.html#live-well" class="w-full h-11 bg-primary hover:bg-primary-dark text-white rounded-lg font-sans text-sm font-semibold flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] transition-all">
+        <span class="material-symbols-outlined text-[18px]">tune</span>
+        <span>OPEN CONTROLLER</span>
+      </a>
+      <a href="index.html#optimize" class="w-full h-11 bg-surface border border-border-subtle hover:bg-slate-50 text-text-main rounded-lg font-sans text-sm font-semibold flex items-center justify-center gap-1.5 shadow-xs active:scale-[0.98] transition-all">
+        <span class="material-symbols-outlined text-[18px] text-text-body">tune</span>
+        <span>OPTIMIZE SETPOINTS</span>
+      </a>
+    </div>
+
+    <script>
+      (function() {
+        let t = 0;
+        let currentRodForce = 68.5;
+
+        function animate() {
+          t += 0.035;
+          const strokePhase = t * 1.0;
+          const normStroke = (Math.sin(strokePhase) + 1) / 2;
+          const isUpstroke = Math.cos(strokePhase) > 0;
+
+          // Realistic SRP Rod Load
+          const mprl = 23.5 + Math.sin(t * 0.2) * 1.5;
+          const pprl = 71.0 + Math.cos(t * 0.15) * 2.8;
+          let rodTarget = isUpstroke ? (mprl + Math.sin(normStroke * Math.PI * 0.5) * (pprl - mprl)) : (mprl + Math.cos((1 - normStroke) * Math.PI * 0.5) * (pprl - mprl));
+          rodTarget += Math.sin(strokePhase * 5) * 0.5;
+          currentRodForce += (rodTarget - currentRodForce) * 0.15;
+
+          const press = (84.1 + Math.sin(t * 0.12) * 0.8 + Math.sin(strokePhase) * 1.1 + (Math.random() - 0.5) * 0.1).toFixed(1);
+          const temp = (148.4 + Math.sin(t * 0.05) * 0.4).toFixed(1);
+          const rod = currentRodForce.toFixed(1);
+          const flow = (309.0 + (isUpstroke ? Math.sin(normStroke * Math.PI) * 12 : 0)).toFixed(1);
+          const spm = (5.35 + Math.sin(t * 0.05) * 0.1).toFixed(1);
+
+          const elPress = document.getElementById('val-press');
+          const elTemp = document.getElementById('val-temp');
+          const elRod = document.getElementById('val-rod');
+          const elFlow = document.getElementById('val-flow');
+          const elRadP = document.getElementById('rad-p-val');
+          const elRadT = document.getElementById('rad-t-val');
+          const elRadF = document.getElementById('rad-f-val');
+          const elSpm = document.getElementById('spm-val');
+
+          if (elPress) elPress.innerText = press;
+          if (elTemp) elTemp.innerText = temp;
+          if (elRod) elRod.innerText = rod;
+          if (elFlow) elFlow.innerText = flow;
+          if (elRadP) elRadP.innerText = press;
+          if (elRadT) elRadT.innerText = temp;
+          if (elRadF) elRadF.innerText = rod;
+          if (elSpm) elSpm.innerText = spm;
+
+          const gp = document.getElementById('gauge-press-path');
+          const gt = document.getElementById('gauge-temp-path');
+          const gr = document.getElementById('gauge-rod-path');
+          if (gp) gp.setAttribute('stroke-dasharray', `${(parseFloat(press) / 120 * 100).toFixed(1)}, 100`);
+          if (gt) gt.setAttribute('stroke-dasharray', `${(parseFloat(temp) / 200 * 100).toFixed(1)}, 100`);
+          if (gr) gr.setAttribute('stroke-dasharray', `${(parseFloat(rod) / 85 * 100).toFixed(1)}, 100`);
+
+          requestAnimationFrame(animate);
+        }
+        requestAnimationFrame(animate);
+      })();
+    </script>
+  </main>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface/95 backdrop-blur-md border-t border-border-subtle shadow-md">
+    <div class="flex items-center overflow-x-auto no-scrollbar h-16 px-1.5 gap-1 max-w-4xl mx-auto">
+      <a aria-current="page" class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg transition-colors shrink-0 text-primary bg-sky-50 font-semibold" href="index.html#live-well">
+        <span class="material-symbols-outlined text-[20px]">vital_signs</span>
+        <span class="font-alert text-[10px] tracking-tight uppercase mt-0.5">Live Well</span>
+      </a>
+      <a class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg text-text-muted hover:text-text-main transition-colors shrink-0 font-medium" href="index.html#alerts">
+        <span class="material-symbols-outlined text-[20px]">warning</span>
+        <span class="font-alert text-[10px] tracking-tight uppercase mt-0.5">Alerts</span>
+      </a>
+      <a class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg text-text-muted hover:text-text-main transition-colors shrink-0 font-medium" href="index.html#optimize">
+        <span class="material-symbols-outlined text-[20px]">tune</span>
+        <span class="font-alert text-[10px] tracking-tight uppercase mt-0.5">Optimize</span>
+      </a>
+      <a class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg text-text-muted hover:text-text-main transition-colors shrink-0 font-medium" href="index.html#css-cycle">
+        <span class="material-symbols-outlined text-[20px]">cyclone</span>
+        <span class="font-alert text-[10px] tracking-tight uppercase mt-0.5">CSS Cycle</span>
+      </a>
+      <a class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg text-text-muted hover:text-text-main transition-colors shrink-0 font-medium" href="index.html#dynamo">
+        <span class="material-symbols-outlined text-[20px]">speed</span>
+        <span class="font-alert text-[10px] tracking-tight uppercase mt-0.5">Dynamo</span>
+      </a>
+      <a class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg text-text-muted hover:text-text-main transition-colors shrink-0 font-medium" href="index.html#history">
+        <span class="material-symbols-outlined text-[20px]">show_chart</span>
+        <span class="font-alert text-[10px] tracking-tight uppercase mt-0.5">History</span>
+      </a>
+      <a class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg text-text-muted hover:text-text-main transition-colors shrink-0 font-medium" href="index.html#debug">
+        <span class="material-symbols-outlined text-[20px]">terminal</span>
+        <span class="font-alert text-[10px] tracking-tight uppercase mt-0.5">Debug</span>
+      </a>
+    </div>
+  </nav>
+</body>
+</html>

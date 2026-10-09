@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+  <title>BHOROS | SRP Dynamometer</title>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Nunito+Sans:wght@700;800&amp;family=Space+Mono:wght@600;700&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+  <style>
+    @layer base{
+      html,body{width:100vw;margin:0;padding:0;background-color:#F8FAFC;}
+      body{overscroll-behavior:none;-webkit-font-smoothing:antialiased;}
+      .pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}
+      .pt-safe{padding-top:env(safe-area-inset-top,0px);}
+    }
+    ::-webkit-scrollbar{display:none;}
+    body { min-height: max(884px, 100dvh); }
+  </style>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+</head>
+<body class="bg-[#F8FAFC] text-slate-900 font-sans flex flex-col min-h-screen">
+  <!-- Header -->
+  <header class="fixed top-0 inset-x-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm pt-safe">
+    <div class="h-20 px-3 flex flex-col justify-center gap-1.5 max-w-4xl mx-auto">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2 min-w-0">
+          <a href="index.html#dynamo" class="flex items-center gap-2">
+            <div class="h-8 w-8 rounded-lg bg-slate-900 flex items-center justify-center p-1 shadow-sm shrink-0">
+              <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+                <rect width="100" height="100" rx="20" fill="#0f172a"/>
+                <path d="M50 15 L78 35 L78 68 L50 88 L22 68 L22 35 Z" stroke="#38bdf8" stroke-width="5" fill="#1e293b" />
+                <path d="M50 25 L50 78" stroke="#2ecc71" stroke-width="4" stroke-dasharray="6 3"/>
+                <circle cx="50" cy="50" r="14" fill="#0284c7" stroke="#38bdf8" stroke-width="3"/>
+                <path d="M36 50 H64" stroke="#f39c12" stroke-width="3"/>
+                <circle cx="50" cy="50" r="5" fill="#ffffff"/>
+              </svg>
+            </div>
+            <div class="flex items-center gap-1.5 truncate">
+              <span class="text-sky-700 font-bold tracking-tight text-sm">BHOROS</span>
+              <span class="text-slate-300 font-light">|</span>
+              <h1 class="text-slate-800 truncate capitalize font-semibold text-sm">Dynamo</h1>
+            </div>
+          </a>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <div class="w-8 h-8 rounded-full bg-sky-100 border border-sky-200 flex items-center justify-center">
+            <span class="material-symbols-outlined text-sky-700 text-[18px]">person</span>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-1.5">
+          <span class="font-mono text-[11px] text-slate-500 tracking-wider uppercase font-semibold">WELL:</span>
+          <span class="font-mono text-xs text-sky-700 tracking-wide font-bold">PERMIAN-NV-402B</span>
+        </div>
+        <div class="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="font-alert text-xs text-emerald-700 font-bold">OK</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex flex-col relative w-full pt-20 pb-20 bg-[#F8FAFC] min-h-screen max-w-4xl mx-auto px-3">
+    <div class="flex flex-col gap-3.5 mt-3">
+      <div class="flex items-center justify-between">
+        <span class="font-mono text-xs text-sky-700 font-bold tracking-wider uppercase">SYS // RT-DYNO-81</span>
+        <div class="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          <span class="font-alert text-xs text-emerald-700 font-bold">DIAGNOSTIC VALIDATED</span>
+        </div>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-900 tracking-tight">SRP Dynamometer</h1>
+      <h2 class="text-sm text-slate-500 font-medium">Sucker Rod Pump Diagnostic Card</h2>
+
+      <!-- Card Banner -->
+      <div class="bg-gradient-to-r from-sky-50 via-indigo-50 to-emerald-50 border border-sky-200/90 rounded-xl p-3 flex items-center justify-between shadow-xs">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center text-white shrink-0 shadow-sm">
+            <span class="material-symbols-outlined text-[19px]">waves</span>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-[10px] uppercase tracking-wider font-extrabold text-sky-900 font-alert">Digital Twin Downhole Card Reconstruction</span>
+            <p class="text-[11px] text-slate-600 font-mono">Physics-based 1D damped wave equation solution (Gibbs method)</p>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-sky-400 text-[18px] shrink-0">verified</span>
+      </div>
+
+      <!-- Fillage Card -->
+      <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-xs">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs text-slate-600 uppercase font-semibold font-mono">Effective Pump Fillage</span>
+          <span class="font-alert text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-bold">TARGET &gt;85%</span>
+        </div>
+        <div class="flex items-baseline gap-1.5 mb-2">
+          <span class="font-mono text-3xl text-emerald-600 font-bold tracking-tight">88.4</span>
+          <span class="text-base text-slate-400 font-medium">%</span>
+          <span class="ml-auto font-mono text-xs text-emerald-600 flex items-center gap-1 font-semibold">
+            <span class="material-symbols-outlined text-[16px]">check_circle</span> NOMINAL
+          </span>
+        </div>
+        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200">
+          <div class="bg-emerald-500 h-full rounded-full" style="width: 88.4%;"></div>
+        </div>
+      </div>
+
+      <div class="pt-2">
+        <a href="index.html#dynamo" class="w-full flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold py-3 px-4 rounded-xl shadow-sm">
+          <span class="material-symbols-outlined text-[18px]">query_stats</span>
+          <span>View Interactive Dyno Trace Overlap &amp; Goodman Curve</span>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-lg">
+    <div class="flex items-center overflow-x-auto no-scrollbar h-16 px-1.5 gap-1 max-w-4xl mx-auto">
+      <a class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg text-slate-500 hover:text-slate-800 transition-colors shrink-0" href="index.html#live-well">
+        <span class="material-symbols-outlined text-[20px]">vital_signs</span>
+        <span class="font-alert text-[10px] tracking-tight uppercase mt-0.5">Live Well</span>
+      </a>
+      <a class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg text-slate-500 hover:text-slate-800 transition-colors shrink-0" href="index.html#alerts">
+        <span class="material-symbols-outlined text-[20px]">warning</span>
+        <span class="font-alert text-[10px] tracking-tight uppercase mt-0.5">Alerts</span>
+      </a>
+      <a class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg text-slate-500 hover:text-slate-800 transition-colors shrink-0" href="index.html#optimize">
+        <span class="material-symbols-outlined text-[20px]">tune</span>
+        <span class="font-alert text-[10px] tracking-tight uppercase mt-0.5">Optimize</span>
+      </a>
+      <a class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg text-slate-500 hover:text-slate-800 transition-colors shrink-0" href="index.html#css-cycle">
+        <span class="material-symbols-outlined text-[20px]">cyclone</span>
+        <span class="font-alert text-[10px] tracking-tight uppercase mt-0.5">CSS Cycle</span>
+      </a>
+      <a aria-current="page" class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg transition-colors shrink-0 text-sky-700 bg-sky-50 font-bold border border-sky-100" href="index.html#dynamo">
+        <span class="material-symbols-outlined text-[20px]">speed</span>
+        <span class="font-alert text-[10px] tracking-tight uppercase mt-0.5">Dynamo</span>
+      </a>
+      <a class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg text-slate-500 hover:text-slate-800 transition-colors shrink-0" href="index.html#history">
+        <span class="material-symbols-outlined text-[20px]">show_chart</span>
+        <span class="font-alert text-[10px] tracking-tight uppercase mt-0.5">History</span>
+      </a>
+      <a class="flex flex-col items-center justify-center min-w-[64px] h-12 rounded-lg text-slate-500 hover:text-slate-800 transition-colors shrink-0" href="index.html#debug">
+        <span class="material-symbols-outlined text-[20px]">terminal</span>
+        <span class="font-alert text-[10px] tracking-tight uppercase mt-0.5">Debug</span>
+      </a>
+    </div>
+  </nav>
+</body>
+</html>

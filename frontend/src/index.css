@@ -1,0 +1,127 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #FFFFFF;
+  --color-content: #F8F9FB;
+  --color-sidebar: #FAFAFA;
+  --color-border: #E5E7EB;
+  --color-primary: #2563EB;
+  --color-primary-hover: #1d4ed8;
+
+  --color-text-main: #111827;
+  --color-text-muted: #6B7280;
+
+  --color-status-info: #3B82F6;
+  --color-status-warning: #F59E0B;
+  --color-status-critical: #EF4444;
+  --color-status-success: #10B981;
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Menlo', monospace;
+}
+
+/* ─────────────────────── Base Reset ─────────────────────── */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: 14px;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-content);
+    color: var(--color-text-main);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.5;
+  }
+
+  ::selection {
+    background-color: var(--color-primary);
+    color: #ffffff;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-muted);
+  }
+}
+
+/* ─────────────────────── Data Tables ─────────────────────── */
+.data-table {
+  width: 100%;
+  font-size: 0.8125rem;
+  text-align: left;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  padding: 0.625rem 1rem;
+  background-color: var(--color-content);
+  border-bottom: 1px solid var(--color-border);
+  font-weight: 500;
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ─────────────────────── Status Indicators ─────────────────────── */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.status-active {
+  background-color: color-mix(in srgb, var(--color-status-success) 10%, transparent);
+  color: var(--color-status-success);
+}
+
+.status-info {
+  background-color: color-mix(in srgb, var(--color-status-info) 10%, transparent);
+  color: var(--color-status-info);
+}
+
+.status-warning {
+  background-color: color-mix(in srgb, var(--color-status-warning) 10%, transparent);
+  color: var(--color-status-warning);
+}
+
+.status-critical {
+  background-color: color-mix(in srgb, var(--color-status-critical) 10%, transparent);
+  color: var(--color-status-critical);
+}
